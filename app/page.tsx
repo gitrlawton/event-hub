@@ -3,22 +3,16 @@
 import { useState, useMemo } from 'react';
 import { Event } from '@/types/event';
 import { sampleEvents, filterEvents } from '@/lib/events';
-import { CalendarView } from '@/components/calendar/calendar-view';
+import { Header } from '@/components/layout/header';
 import { EventCard } from '@/components/event/event-card';
-import { EventFilters } from '@/components/event/event-filters';
 import { EventDetailModal } from '@/components/event/event-detail-modal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Calendar as CalendarIcon,
-  Grid3X3,
-  TrendingUp,
   Star,
   Users,
   MapPin,
-  Zap,
   Code,
   BarChart3,
   Brain,
@@ -27,7 +21,11 @@ import {
   Dna,
   DollarSign,
   Palette,
+  TrendingUp,
+  Calendar,
+  ArrowRight,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const techDisciplines = [
   {
@@ -92,45 +90,55 @@ export default function Home() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDiscipline, setSelectedDiscipline] = useState<string | null>(null);
-  const [filters, setFilters] = useState<{
-    search: string;
-    category?: any;
-    isOnline?: boolean;
-  }>({
-    search: '',
-  });
+  const [headerSearch, setHeaderSearch] = useState('');
+  const router = useRouter();
 
+  // Simple filtering for homepage - just search and discipline
   const filteredEvents = useMemo(() => {
-    let events = filterEvents(sampleEvents, filters);
+    let events = sampleEvents;
     
-    // Filter by selected discipline (this would be enhanced with proper tagging in a real app)
+    // Filter by search
+    if (headerSearch) {
+      const searchLower = headerSearch.toLowerCase();
+      events = events.filter(event =>
+        event.title.toLowerCase().includes(searchLower) ||
+        event.description.toLowerCase().includes(searchLower) ||
+        event.tags.some(tag => tag.toLowerCase().includes(searchLower))
+      );
+    }
+    
+    // Filter by selected discipline
     if (selectedDiscipline) {
-      events = events.filter(event => {
-        const disciplineKeywords = {
-          'software-engineering': ['react', 'javascript', 'web development', 'frontend', 'backend', 'development', 'programming', 'coding'],
-          'data-science': ['data', 'analytics', 'visualization', 'statistics', 'analysis', 'insights', 'metrics'],
-          'ai-ml': ['ai', 'machine learning', 'tensorflow', 'neural', 'deep learning', 'artificial intelligence', 'ml'],
-          'cybersecurity': ['security', 'privacy', 'encryption', 'blockchain', 'cyber', 'protection', 'vulnerability'],
-          'product-management': ['product', 'strategy', 'roadmap', 'management', 'planning', 'growth'],
-          'biotech': ['biotech', 'biotechnology', 'genomics', 'bioinformatics', 'healthcare', 'medical', 'biology', 'pharma'],
-          'fintech': ['fintech', 'finance', 'banking', 'payments', 'cryptocurrency', 'blockchain', 'trading', 'investment'],
-          'ui-ux': ['ux', 'ui', 'design', 'user experience', 'user interface', 'prototyping', 'research', 'usability']
-        };
-        
-        const keywords = disciplineKeywords[selectedDiscipline as keyof typeof disciplineKeywords] || [];
-        return keywords.some(keyword => 
+      const disciplineKeywords = {
+        'software-engineering': ['react', 'javascript', 'web development', 'frontend', 'backend', 'development', 'programming', 'coding'],
+        'data-science': ['data', 'analytics', 'visualization', 'statistics', 'analysis', 'insights', 'metrics'],
+        'ai-ml': ['ai', 'machine learning', 'tensorflow', 'neural', 'deep learning', 'artificial intelligence', 'ml'],
+        'cybersecurity': ['security', 'privacy', 'encryption', 'blockchain', 'cyber', 'protection', 'vulnerability'],
+        'product-management': ['product', 'strategy', 'roadmap', 'management', 'planning', 'growth'],
+        'biotech': ['biotech', 'biotechnology', 'genomics', 'bioinformatics', 'healthcare', 'medical', 'biology', 'pharma'],
+        'fintech': ['fintech', 'finance', 'banking', 'payments', 'cryptocurrency', 'blockchain', 'trading', 'investment'],
+        'ui-ux': ['ux', 'ui', 'design', 'user experience', 'user interface', 'prototyping', 'research', 'usability']
+      };
+      
+      const keywords = disciplineKeywords[selectedDiscipline as keyof typeof disciplineKeywords] || [];
+      events = events.filter(event => 
+        keywords.some(keyword => 
           event.title.toLowerCase().includes(keyword) ||
           event.description.toLowerCase().includes(keyword) ||
           event.tags.some(tag => tag.toLowerCase().includes(keyword))
-        );
-      });
+        )
+      );
     }
     
     return events;
-  }, [filters, selectedDiscipline]);
+  }, [headerSearch, selectedDiscipline]);
 
   const featuredEvents = useMemo(() => {
     return sampleEvents.filter(event => event.featured);
+  }, []);
+
+  const upcomingEvents = useMemo(() => {
+    return sampleEvents.slice(0, 6); // Show first 6 events
   }, []);
 
   const handleEventSelect = (event: Event) => {
@@ -147,32 +155,14 @@ export default function Home() {
     setSelectedDiscipline(selectedDiscipline === disciplineId ? null : disciplineId);
   };
 
+  const navigateToCalendar = () => {
+    router.push('/calendar');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-8 h-8 bg-blue-600 rounded-lg">
-                <Zap className="h-5 w-5 text-white" />
-              </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Happening
-              </h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Badge variant="outline" className="hidden sm:flex">
-                <MapPin className="h-3 w-3 mr-1" />
-                San Francisco Bay Area
-              </Badge>
-              <Button variant="outline" size="sm">
-                Create Event
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header onSearchChange={setHeaderSearch} />
 
       {/* Hero Section */}
       <section className="py-12 px-4 sm:px-6 lg:px-8">
@@ -236,17 +226,47 @@ export default function Home() {
               </Badge>
             </div>
           )}
+
+          {/* Call to Action */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button 
+              onClick={navigateToCalendar}
+              size="lg" 
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
+            >
+              <Calendar className="h-5 w-5 mr-2" />
+              View Full Calendar
+            </Button>
+            <Button 
+              variant="outline" 
+              size="lg"
+              className="px-8 py-3 text-lg"
+            >
+              <TrendingUp className="h-5 w-5 mr-2" />
+              Browse Trending
+            </Button>
+          </div>
         </div>
       </section>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-        <div className="space-y-8">
+        <div className="space-y-12">
           {/* Featured Events */}
           <section>
-            <div className="flex items-center gap-3 mb-6">
-              <Star className="h-6 w-6 text-yellow-500" />
-              <h3 className="text-2xl font-bold text-gray-900">Featured Events</h3>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Star className="h-6 w-6 text-yellow-500" />
+                <h3 className="text-2xl font-bold text-gray-900">Featured Events</h3>
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={navigateToCalendar}
+                className="flex items-center gap-2"
+              >
+                View All
+                <ArrowRight className="h-4 w-4" />
+              </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {featuredEvents.map(event => (
@@ -257,48 +277,66 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Search and Filters */}
-          <EventFilters onFiltersChange={setFilters} />
-
-          {/* Main Event Display */}
-          <Tabs defaultValue="calendar" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:grid-cols-2">
-              <TabsTrigger value="calendar" className="flex items-center gap-2">
-                <CalendarIcon className="h-4 w-4" />
-                Calendar View
-              </TabsTrigger>
-              <TabsTrigger value="grid" className="flex items-center gap-2">
-                <Grid3X3 className="h-4 w-4" />
-                Grid View
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="calendar" className="space-y-0">
-              <CalendarView
-                events={filteredEvents}
-                onEventSelect={handleEventSelect}
-              />
-            </TabsContent>
-
-            <TabsContent value="grid" className="space-y-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredEvents.map(event => (
-                  <div key={event.id} onClick={() => handleEventSelect(event)}>
-                    <EventCard event={event} onRSVP={handleRSVP} />
-                  </div>
-                ))}
+          {/* Upcoming Events */}
+          <section>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Calendar className="h-6 w-6 text-blue-500" />
+                <h3 className="text-2xl font-bold text-gray-900">
+                  {selectedDiscipline ? 'Filtered Events' : 'Upcoming Events'}
+                </h3>
               </div>
-              {filteredEvents.length === 0 && (
-                <Card className="p-12 text-center">
-                  <div className="text-gray-500">
-                    <CalendarIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <h3 className="text-lg font-medium mb-2">No events found</h3>
-                    <p>Try adjusting your search or filter criteria.</p>
-                  </div>
-                </Card>
-              )}
-            </TabsContent>
-          </Tabs>
+              <Button 
+                variant="outline" 
+                onClick={navigateToCalendar}
+                className="flex items-center gap-2"
+              >
+                View Calendar
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {(selectedDiscipline ? filteredEvents : upcomingEvents).slice(0, 6).map(event => (
+                <div key={event.id} onClick={() => handleEventSelect(event)}>
+                  <EventCard event={event} onRSVP={handleRSVP} />
+                </div>
+              ))}
+            </div>
+            {selectedDiscipline && filteredEvents.length === 0 && (
+              <Card className="p-12 text-center">
+                <div className="text-gray-500">
+                  <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <h3 className="text-lg font-medium mb-2">No events found</h3>
+                  <p>Try selecting a different discipline or browse all events in the calendar.</p>
+                  <Button 
+                    onClick={navigateToCalendar}
+                    className="mt-4"
+                    variant="outline"
+                  >
+                    Browse All Events
+                  </Button>
+                </div>
+              </Card>
+            )}
+          </section>
+
+          {/* Stats Section */}
+          <section className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-600 mb-2">500+</div>
+                <div className="text-gray-600">Events This Month</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-green-600 mb-2">50K+</div>
+                <div className="text-gray-600">Active Members</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-purple-600 mb-2">200+</div>
+                <div className="text-gray-600">Partner Organizations</div>
+              </div>
+            </div>
+          </section>
         </div>
       </main>
 
