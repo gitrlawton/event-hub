@@ -27,8 +27,19 @@ export type EventCategory =
   | 'webinar'
   | 'networking';
 
+export type TechDomain = 
+  | 'software-engineering'
+  | 'data-science'
+  | 'ai-ml'
+  | 'cybersecurity'
+  | 'product-management'
+  | 'biotech'
+  | 'fintech'
+  | 'ui-ux';
+
 export interface EventFilters {
   category?: EventCategory;
+  domain?: TechDomain;
   dateRange?: {
     start: Date;
     end: Date;

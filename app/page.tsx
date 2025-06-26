@@ -155,6 +155,11 @@ export default function Home() {
     setSelectedDiscipline(selectedDiscipline === disciplineId ? null : disciplineId);
   };
 
+  const handleDisciplineNavigate = (disciplineId: string) => {
+    // Navigate to calendar page with domain filter and grid view
+    router.push(`/calendar?domain=${disciplineId}&view=grid`);
+  };
+
   const navigateToCalendar = () => {
     router.push('/calendar');
   };
@@ -183,28 +188,20 @@ export default function Home() {
             {techDisciplines.map((discipline) => (
               <Button
                 key={discipline.id}
-                onClick={() => handleDisciplineSelect(discipline.id)}
-                variant={selectedDiscipline === discipline.id ? "default" : "outline"}
+                onClick={() => handleDisciplineNavigate(discipline.id)}
+                variant="outline"
                 className={`
                   h-auto p-4 flex flex-col items-center gap-2 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg
-                  ${selectedDiscipline === discipline.id 
-                    ? `${discipline.color} text-white shadow-lg scale-105` 
-                    : 'bg-white hover:bg-gray-50 border-2 hover:border-gray-300'
-                  }
+                  bg-white hover:bg-gray-50 border-2 hover:border-gray-300 group
+                  hover:${discipline.color.split(' ')[1]} hover:text-white
                 `}
               >
-                <discipline.icon className={`h-6 w-6 ${
-                  selectedDiscipline === discipline.id ? 'text-white' : 'text-gray-600'
-                }`} />
+                <discipline.icon className="h-6 w-6 text-gray-600 group-hover:text-white transition-colors" />
                 <div>
-                  <div className={`font-semibold text-xs ${
-                    selectedDiscipline === discipline.id ? 'text-white' : 'text-gray-900'
-                  }`}>
+                  <div className="font-semibold text-xs text-gray-900 group-hover:text-white transition-colors">
                     {discipline.name}
                   </div>
-                  <div className={`text-xs mt-1 leading-tight ${
-                    selectedDiscipline === discipline.id ? 'text-white/80' : 'text-gray-500'
-                  }`}>
+                  <div className="text-xs mt-1 leading-tight text-gray-500 group-hover:text-white/80 transition-colors">
                     {discipline.description}
                   </div>
                 </div>

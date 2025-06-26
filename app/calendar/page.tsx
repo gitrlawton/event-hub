@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { Event } from '@/types/event';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Event, TechDomain } from '@/types/event';
 import { sampleEvents, filterEvents } from '@/lib/events';
 import { Header } from '@/components/layout/header';
 import { CalendarView } from '@/components/calendar/calendar-view';
@@ -16,16 +17,38 @@ import {
 } from 'lucide-react';
 
 export default function CalendarPage() {
+  const searchParams = useSearchParams();
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [headerSearch, setHeaderSearch] = useState('');
   const [filters, setFilters] = useState<{
     search: string;
     category?: any;
+    domain?: TechDomain;
     isOnline?: boolean;
   }>({
     search: '',
   });
+
+  // Get URL parameters for domain and view
+  const urlDomain = searchParams.get('domain') as TechDomain | null;
+  const urlView = searchParams.get('view') || 'calendar';
+
+  // Set initial tab value based on URL parameter
+  const [activeTab, setActiveTab] = useState(urlView);
+
+  // Apply URL parameters on component mount
+  useEffect(() => {
+    if (urlDomain) {
+      setFilters(prev => ({
+        ...prev,
+        domain: urlDomain,
+      }));
+    }
+    if (urlView) {
+      setActiveTab(urlView);
+    }
+  }, [urlDomain, urlView]);
 
   // Combine header search with filter search
   const combinedFilters = useMemo(() => ({
@@ -58,18 +81,22 @@ export default function CalendarPage() {
           {/* Page Title */}
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Event Calendar
+              Events
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Browse and discover tech events in an organized calendar view. Filter by type, search for specific topics, and never miss an important event.
+              Browse and discover tech events in an organized view. Filter by domain and type, search for specific topics, and never miss an important event.
             </p>
           </div>
 
           {/* Search and Filters */}
-          <EventFilters onFiltersChange={setFilters} />
+          <EventFilters 
+            onFiltersChange={setFilters} 
+            initialDomain={urlDomain || undefined}
+            currentFilters={filters}
+          />
 
           {/* Calendar and Grid Views */}
-          <Tabs defaultValue="calendar" className="space-y-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:grid-cols-2">
               <TabsTrigger value="calendar" className="flex items-center gap-2">
                 <CalendarIcon className="h-4 w-4" />

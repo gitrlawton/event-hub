@@ -1,11 +1,11 @@
-import { Event, EventCategory } from '@/types/event';
+import { Event, EventCategory, TechDomain } from '@/types/event';
 
 export const sampleEvents: Event[] = [
   {
     id: '1',
     title: 'React Summit 2024',
     description: 'The biggest React conference of the year featuring industry leaders sharing insights on the latest React trends, performance optimization, and future developments.',
-    date: new Date('2024-03-15'),
+    date: new Date('2025-01-15'),
     startTime: '09:00',
     endTime: '18:00',
     location: 'San Francisco',
@@ -25,7 +25,7 @@ export const sampleEvents: Event[] = [
     id: '2',
     title: 'AI/ML Workshop: Building with TensorFlow',
     description: 'Hands-on workshop covering machine learning fundamentals and practical TensorFlow implementation for real-world applications.',
-    date: new Date('2024-03-16'),
+    date: new Date('2025-01-16'),
     startTime: '10:00',
     endTime: '16:00',
     location: 'Online',
@@ -45,7 +45,7 @@ export const sampleEvents: Event[] = [
     id: '3',
     title: 'Tech Startup Networking Mixer',
     description: 'Connect with fellow entrepreneurs, investors, and tech professionals in a relaxed networking environment with refreshments and lightning talks.',
-    date: new Date('2024-03-18'),
+    date: new Date('2025-01-18'),
     startTime: '18:00',
     endTime: '21:00',
     location: 'New York',
@@ -65,7 +65,7 @@ export const sampleEvents: Event[] = [
     id: '4',
     title: 'Blockchain Hackathon 2024',
     description: '48-hour intensive hackathon focused on building innovative blockchain solutions with mentorship from industry experts and exciting prizes.',
-    date: new Date('2024-03-22'),
+    date: new Date('2025-01-22'),
     startTime: '09:00',
     endTime: '18:00',
     location: 'Austin',
@@ -85,7 +85,7 @@ export const sampleEvents: Event[] = [
     id: '5',
     title: 'UX/UI Design Principles Webinar',
     description: 'Learn modern design principles, user research methodologies, and prototyping techniques from senior designers at top tech companies.',
-    date: new Date('2024-03-20'),
+    date: new Date('2025-01-20'),
     startTime: '14:00',
     endTime: '15:30',
     location: 'Online',
@@ -105,7 +105,7 @@ export const sampleEvents: Event[] = [
     id: '6',
     title: 'Local JavaScript Meetup',
     description: 'Monthly gathering of JavaScript developers discussing latest frameworks, best practices, and sharing project experiences over pizza and drinks.',
-    date: new Date('2024-03-25'),
+    date: new Date('2025-01-25'),
     startTime: '19:00',
     endTime: '21:30',
     location: 'Seattle',
@@ -121,15 +121,146 @@ export const sampleEvents: Event[] = [
     rsvpStatus: 'not-registered',
     featured: false,
   },
+  {
+    id: '7',
+    title: 'Cloud Computing Summit',
+    description: 'Explore the latest in cloud technologies, serverless architectures, and DevOps practices with industry experts from AWS, Azure, and Google Cloud.',
+    date: new Date('2025-01-28'),
+    startTime: '09:00',
+    endTime: '17:00',
+    location: 'San Francisco',
+    venue: 'Salesforce Tower',
+    category: 'conference',
+    organizer: 'Cloud Native Foundation',
+    attendees: 523,
+    maxAttendees: 600,
+    price: 199,
+    imageUrl: 'https://images.pexels.com/photos/1181677/pexels-photo-1181677.jpeg',
+    tags: ['Cloud', 'DevOps', 'AWS', 'Azure'],
+    isOnline: false,
+    rsvpStatus: 'not-registered',
+    featured: true,
+  },
+  {
+    id: '8',
+    title: 'Data Science Bootcamp',
+    description: 'Intensive 3-day bootcamp covering Python, pandas, machine learning, and data visualization techniques for beginners and intermediate practitioners.',
+    date: new Date('2025-01-30'),
+    startTime: '09:00',
+    endTime: '17:00',
+    location: 'Boston',
+    venue: 'MIT Campus',
+    category: 'workshop',
+    organizer: 'Data Science Institute',
+    attendees: 45,
+    maxAttendees: 50,
+    price: 399,
+    imageUrl: 'https://images.pexels.com/photos/590022/pexels-photo-590022.jpeg',
+    tags: ['Data Science', 'Python', 'Machine Learning'],
+    isOnline: false,
+    rsvpStatus: 'registered',
+    featured: false,
+  },
+  {
+    id: '9',
+    title: 'Cybersecurity Workshop: Ethical Hacking',
+    description: 'Learn penetration testing, vulnerability assessment, and ethical hacking techniques in this hands-on cybersecurity workshop.',
+    date: new Date('2025-02-03'),
+    startTime: '10:00',
+    endTime: '16:00',
+    location: 'Online',
+    venue: 'Virtual Lab Environment',
+    category: 'workshop',
+    organizer: 'CyberSec Academy',
+    attendees: 78,
+    maxAttendees: 100,
+    price: 149,
+    imageUrl: 'https://images.pexels.com/photos/60504/security-protection-anti-virus-software-60504.jpeg',
+    tags: ['Cybersecurity', 'Ethical Hacking', 'Penetration Testing'],
+    isOnline: true,
+    rsvpStatus: 'not-registered',
+    featured: true,
+  },
+  {
+    id: '10',
+    title: 'Product Management Masterclass',
+    description: 'Strategic product management session covering roadmap planning, user research, metrics, and stakeholder management for tech products.',
+    date: new Date('2025-02-05'),
+    startTime: '13:00',
+    endTime: '18:00',
+    location: 'San Francisco',
+    venue: 'Google Campus',
+    category: 'workshop',
+    organizer: 'Product School',
+    attendees: 92,
+    maxAttendees: 120,
+    price: 249,
+    imageUrl: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg',
+    tags: ['Product Management', 'Strategy', 'User Research'],
+    isOnline: false,
+    rsvpStatus: 'waitlist',
+    featured: false,
+  },
+  {
+    id: '11',
+    title: 'Mobile App Development Workshop',
+    description: 'Build cross-platform mobile apps using React Native and Flutter. Hands-on coding session with deployment to app stores.',
+    date: new Date('2025-02-08'),
+    startTime: '10:00',
+    endTime: '16:00',
+    location: 'Los Angeles',
+    venue: 'UCLA Extension',
+    category: 'workshop',
+    organizer: 'Mobile Dev Community',
+    attendees: 134,
+    maxAttendees: 150,
+    price: 179,
+    imageUrl: 'https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg',
+    tags: ['Mobile Development', 'React Native', 'Flutter'],
+    isOnline: false,
+    rsvpStatus: 'not-registered',
+    featured: true,
+  },
+  {
+    id: '12',
+    title: 'Fintech Innovation Summit',
+    description: 'Explore the future of financial technology, cryptocurrency, DeFi, and digital banking with industry leaders and innovators.',
+    date: new Date('2025-02-12'),
+    startTime: '09:00',
+    endTime: '18:00',
+    location: 'New York',
+    venue: 'Wall Street Conference Center',
+    category: 'conference',
+    organizer: 'Fintech Association',
+    attendees: 678,
+    maxAttendees: 800,
+    price: 349,
+    imageUrl: 'https://images.pexels.com/photos/730547/pexels-photo-730547.jpeg',
+    tags: ['Fintech', 'Cryptocurrency', 'DeFi', 'Banking'],
+    isOnline: false,
+    rsvpStatus: 'registered',
+    featured: true,
+  },
 ];
 
 export const eventCategories: { value: EventCategory; label: string; color: string }[] = [
   { value: 'conference', label: 'Conference', color: 'bg-blue-500' },
-  { value: 'workshop', label: 'Workshop', color: 'bg-green-500' },
+  { value: 'workshop', label: 'Workshop', color: 'bg-orange-500' },
   { value: 'meetup', label: 'Meetup', color: 'bg-purple-500' },
   { value: 'hackathon', label: 'Hackathon', color: 'bg-red-500' },
-  { value: 'webinar', label: 'Webinar', color: 'bg-yellow-500' },
-  { value: 'networking', label: 'Networking', color: 'bg-indigo-500' },
+  { value: 'webinar', label: 'Webinar', color: 'bg-pink-500' },
+  { value: 'networking', label: 'Networking', color: 'bg-teal-500' },
+];
+
+export const techDomains: { value: TechDomain; label: string; color: string; icon: string }[] = [
+  { value: 'software-engineering', label: 'Software Engineering', color: 'bg-blue-500 hover:bg-blue-600', icon: 'Code' },
+  { value: 'data-science', label: 'Data Science', color: 'bg-green-500 hover:bg-green-600', icon: 'BarChart3' },
+  { value: 'ai-ml', label: 'AI / Machine Learning', color: 'bg-purple-500 hover:bg-purple-600', icon: 'Brain' },
+  { value: 'cybersecurity', label: 'Cybersecurity', color: 'bg-red-500 hover:bg-red-600', icon: 'Shield' },
+  { value: 'product-management', label: 'Product Management', color: 'bg-orange-500 hover:bg-orange-600', icon: 'Target' },
+  { value: 'biotech', label: 'Biotech', color: 'bg-teal-500 hover:bg-teal-600', icon: 'Dna' },
+  { value: 'fintech', label: 'Fintech', color: 'bg-emerald-500 hover:bg-emerald-600', icon: 'DollarSign' },
+  { value: 'ui-ux', label: 'UI / UX', color: 'bg-pink-500 hover:bg-pink-600', icon: 'Palette' },
 ];
 
 export function getEventsByDate(events: Event[], date: Date): Event[] {
@@ -144,10 +275,39 @@ export function getEventsInDateRange(events: Event[], start: Date, end: Date): E
   );
 }
 
-export function filterEvents(events: Event[], filters: Partial<{ category: EventCategory; isOnline: boolean; search: string }>): Event[] {
+export function filterEvents(events: Event[], filters: Partial<{ 
+  category: EventCategory; 
+  domain: TechDomain;
+  isOnline: boolean; 
+  search: string 
+}>): Event[] {
   return events.filter(event => {
     if (filters.category && event.category !== filters.category) return false;
     if (filters.isOnline !== undefined && event.isOnline !== filters.isOnline) return false;
+    
+    // Domain filtering logic
+    if (filters.domain) {
+      const domainKeywords = {
+        'software-engineering': ['react', 'javascript', 'web development', 'frontend', 'backend', 'development', 'programming', 'coding', 'cloud', 'devops', 'mobile development'],
+        'data-science': ['data', 'analytics', 'visualization', 'statistics', 'analysis', 'insights', 'metrics', 'data science', 'python', 'machine learning'],
+        'ai-ml': ['ai', 'machine learning', 'tensorflow', 'neural', 'deep learning', 'artificial intelligence', 'ml'],
+        'cybersecurity': ['security', 'privacy', 'encryption', 'blockchain', 'cyber', 'protection', 'vulnerability', 'cybersecurity', 'ethical hacking', 'penetration testing'],
+        'product-management': ['product', 'strategy', 'roadmap', 'management', 'planning', 'growth', 'product management', 'user research'],
+        'biotech': ['biotech', 'biotechnology', 'genomics', 'bioinformatics', 'healthcare', 'medical', 'biology', 'pharma'],
+        'fintech': ['fintech', 'finance', 'banking', 'payments', 'cryptocurrency', 'blockchain', 'trading', 'investment', 'defi'],
+        'ui-ux': ['ux', 'ui', 'design', 'user experience', 'user interface', 'prototyping', 'research', 'usability']
+      };
+      
+      const keywords = domainKeywords[filters.domain] || [];
+      const matchesDomain = keywords.some(keyword => 
+        event.title.toLowerCase().includes(keyword) ||
+        event.description.toLowerCase().includes(keyword) ||
+        event.tags.some(tag => tag.toLowerCase().includes(keyword))
+      );
+      
+      if (!matchesDomain) return false;
+    }
+    
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
       return (

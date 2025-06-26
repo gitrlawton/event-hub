@@ -54,6 +54,8 @@ export function CalendarView({ events, onEventSelect }: CalendarViewProps) {
       }
       return newDate;
     });
+    // Clear selected date when changing months
+    setSelectedDate(null);
   };
 
   const selectedDateEvents = selectedDate ? getEventsByDate(events, selectedDate) : [];
@@ -117,6 +119,7 @@ export function CalendarView({ events, onEventSelect }: CalendarViewProps) {
                     ${isCurrentMonth ? 'bg-white' : 'bg-gray-50 text-gray-400'}
                     ${isToday ? 'ring-2 ring-blue-500 ring-opacity-50' : ''}
                     ${isSelected ? 'bg-blue-50 border-blue-300' : ''}
+                    ${dayEvents.length > 0 ? 'hover:shadow-md' : ''}
                   `}
                 >
                   <span className={`text-sm font-medium ${isToday ? 'text-blue-600' : ''}`}>
@@ -131,6 +134,7 @@ export function CalendarView({ events, onEventSelect }: CalendarViewProps) {
                           <div
                             key={event.id}
                             className={`text-xs p-1 rounded text-white truncate ${category?.color || 'bg-gray-400'}`}
+                            title={event.title}
                           >
                             {event.title}
                           </div>
@@ -154,7 +158,12 @@ export function CalendarView({ events, onEventSelect }: CalendarViewProps) {
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <CalendarIcon className="h-5 w-5" />
             {selectedDate ? (
-              <>Events for {selectedDate.toLocaleDateString()}</>
+              <>Events for {selectedDate.toLocaleDateString('en-US', { 
+                weekday: 'long',
+                month: 'long', 
+                day: 'numeric',
+                year: 'numeric'
+              })}</>
             ) : (
               'Select a date'
             )}
@@ -173,15 +182,19 @@ export function CalendarView({ events, onEventSelect }: CalendarViewProps) {
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500 text-center py-8">
-                  No events scheduled for this date.
-                </p>
+                <div className="text-center py-8">
+                  <CalendarIcon className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                  <p className="text-gray-500 mb-2">No events scheduled</p>
+                  <p className="text-sm text-gray-400">for this date</p>
+                </div>
               )}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-8">
-              Click on a date to view events.
-            </p>
+            <div className="text-center py-8">
+              <CalendarIcon className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <p className="text-gray-500 mb-2">Click on a date</p>
+              <p className="text-sm text-gray-400">to view events</p>
+            </div>
           )}
         </Card>
       </div>
