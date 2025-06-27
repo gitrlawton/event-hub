@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ThemeToggle } from '@/components/theme/theme-toggle';
 import {
   Zap,
   MapPin,
@@ -63,7 +64,7 @@ export function Header({ onSearchChange }: HeaderProps) {
   const isHomePage = pathname === '/';
 
   return (
-    <header className="bg-white/95 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <header className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -72,10 +73,10 @@ export function Header({ onSearchChange }: HeaderProps) {
               onClick={navigateToHome}
               className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
             >
-              <div className="flex items-center justify-center w-8 h-8 bg-blue-600 rounded-lg">
+              <div className="flex items-center justify-center w-8 h-8 bg-blue-600 dark:bg-blue-500 rounded-lg">
                 <Zap className="h-5 w-5 text-white" />
               </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
                 Happening
               </h1>
             </button>
@@ -105,12 +106,12 @@ export function Header({ onSearchChange }: HeaderProps) {
           {/* Search Bar - Hidden on mobile, shown on tablet+ */}
           <div className="hidden md:flex flex-1 max-w-lg mx-8">
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <Input
                 placeholder="Search events, topics, or organizers..."
                 value={searchValue}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-10 pr-4 w-full bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-300 focus:ring-blue-200"
+                className="pl-10 pr-4 w-full bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:border-blue-300 dark:focus:border-blue-600 focus:ring-blue-200 dark:focus:ring-blue-800"
               />
             </div>
           </div>
@@ -118,7 +119,7 @@ export function Header({ onSearchChange }: HeaderProps) {
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
             {/* Location Badge */}
-            <Badge variant="outline" className="hidden lg:flex items-center gap-1 px-3 py-1">
+            <Badge variant="outline" className="hidden lg:flex items-center gap-1 px-3 py-1 border-gray-200 dark:border-gray-700">
               <MapPin className="h-3 w-3" />
               San Francisco Bay Area
             </Badge>
@@ -138,6 +139,9 @@ export function Header({ onSearchChange }: HeaderProps) {
               </Button>
             </div>
 
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             {/* Authentication Section */}
             {isLoggedIn ? (
               <>
@@ -148,7 +152,7 @@ export function Header({ onSearchChange }: HeaderProps) {
                 </Button>
 
                 {/* Create Event Button */}
-                <Button size="sm" className="hidden md:flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
+                <Button size="sm" className="hidden md:flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
                   <Plus className="h-4 w-4" />
                   Create Event
                 </Button>
@@ -159,7 +163,7 @@ export function Header({ onSearchChange }: HeaderProps) {
                     <Button variant="ghost" className="h-9 w-9 p-0 rounded-full">
                       <Avatar className="h-8 w-8">
                         <AvatarImage src="" />
-                        <AvatarFallback className="bg-blue-100 text-blue-600 text-sm">
+                        <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 text-sm">
                           JD
                         </AvatarFallback>
                       </Avatar>
@@ -168,7 +172,7 @@ export function Header({ onSearchChange }: HeaderProps) {
                   <DropdownMenuContent align="end" className="w-56">
                     <div className="px-2 py-1.5">
                       <p className="text-sm font-medium">John Doe</p>
-                      <p className="text-xs text-gray-500">john@example.com</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">john@example.com</p>
                     </div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem className="cursor-pointer">
@@ -185,7 +189,7 @@ export function Header({ onSearchChange }: HeaderProps) {
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 
-                      className="cursor-pointer text-red-600 focus:text-red-600"
+                      className="cursor-pointer text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
                       onClick={handleLogout}
                     >
                       <LogOut className="h-4 w-4 mr-2" />
@@ -201,14 +205,14 @@ export function Header({ onSearchChange }: HeaderProps) {
                   variant="ghost" 
                   size="sm"
                   onClick={handleLogin}
-                  className="text-gray-600 hover:text-gray-900"
+                  className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
                 >
                   Log In
                 </Button>
                 <Button 
                   size="sm"
                   onClick={handleLogin}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white"
                 >
                   Sign Up
                 </Button>
@@ -220,12 +224,12 @@ export function Header({ onSearchChange }: HeaderProps) {
         {/* Mobile Search Bar - Shown below header on mobile */}
         <div className="md:hidden pb-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
               placeholder="Search events..."
               value={searchValue}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-10 pr-4 w-full bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-300 focus:ring-blue-200"
+              className="pl-10 pr-4 w-full bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:border-blue-300 dark:focus:border-blue-600 focus:ring-blue-200 dark:focus:ring-blue-800"
             />
           </div>
         </div>

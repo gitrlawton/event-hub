@@ -28,7 +28,7 @@ export const sampleEvents: Event[] = [
     date: new Date('2025-01-16'),
     startTime: '10:00',
     endTime: '16:00',
-    location: 'Online',
+    location: 'Virtual',
     venue: 'Virtual Event',
     category: 'workshop',
     organizer: 'TensorFlow Community',

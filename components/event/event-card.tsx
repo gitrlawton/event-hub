@@ -102,7 +102,7 @@ export function EventCard({ event, compact = false, onRSVP }: EventCardProps) {
         {event.isOnline && (
           <Badge className="absolute top-4 right-4 bg-green-500 text-white border-0">
             <Globe className="h-3 w-3 mr-1" />
-            Online
+            Virtual
           </Badge>
         )}
       </div>

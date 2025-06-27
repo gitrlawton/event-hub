@@ -235,7 +235,7 @@ export function EventFilters({ onFiltersChange, initialDomain, currentFilters }:
               onCheckedChange={handleOnlineToggle}
             />
             <Label htmlFor="online-only" className="text-sm font-medium">
-              Online events only
+              Virtual events only
             </Label>
           </div>
 
@@ -273,7 +273,7 @@ export function EventFilters({ onFiltersChange, initialDomain, currentFilters }:
                 )}
                 {onlineOnly && (
                   <Badge variant="secondary" className="gap-1">
-                    Online Only
+                    Virtual Only
                     <X
                       className="h-3 w-3 cursor-pointer"
                       onClick={() => handleOnlineToggle(false)}
