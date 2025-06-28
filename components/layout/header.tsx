@@ -43,13 +43,19 @@ export function Header({ onSearchChange }: HeaderProps) {
   };
 
   const handleLogin = () => {
-    // In a real app, this would open a login modal or redirect to auth page
-    setIsLoggedIn(true);
+    // Navigate to login page
+    router.push('/login');
+  };
+
+  const handleSignup = () => {
+    // Navigate to signup page
+    router.push('/signup');
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    // Clear any auth state
+    // Clear any auth state and redirect to home
+    router.push('/');
   };
 
   const navigateToHome = () => {
@@ -60,8 +66,13 @@ export function Header({ onSearchChange }: HeaderProps) {
     router.push('/calendar');
   };
 
+  const navigateToProfile = () => {
+    router.push('/profile');
+  };
+
   const isCalendarPage = pathname === '/calendar';
   const isHomePage = pathname === '/';
+  const isProfilePage = pathname === '/profile';
 
   return (
     <header className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50 shadow-sm">
@@ -99,8 +110,20 @@ export function Header({ onSearchChange }: HeaderProps) {
               onClick={navigateToCalendar}
               className="flex items-center gap-2"
             >
+              <Calendar className="h-4 w-4" />
               Events
             </Button>
+            {isLoggedIn && (
+              <Button
+                variant={isProfilePage ? "default" : "ghost"}
+                size="sm"
+                onClick={navigateToProfile}
+                className="flex items-center gap-2"
+              >
+                <User className="h-4 w-4" />
+                Profile
+              </Button>
+            )}
           </div>
 
           {/* Search Bar - Hidden on mobile, shown on tablet+ */}
@@ -134,6 +157,16 @@ export function Header({ onSearchChange }: HeaderProps) {
               >
                 <Calendar className="h-4 w-4" />
               </Button>
+              {isLoggedIn && (
+                <Button
+                  variant={isProfilePage ? "default" : "ghost"}
+                  size="sm"
+                  onClick={navigateToProfile}
+                  className="h-9 w-9 p-0"
+                >
+                  <User className="h-4 w-4" />
+                </Button>
+              )}
               <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
                 <Search className="h-4 w-4" />
               </Button>
@@ -175,7 +208,7 @@ export function Header({ onSearchChange }: HeaderProps) {
                       <p className="text-xs text-gray-500 dark:text-gray-400">john@example.com</p>
                     </div>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="cursor-pointer">
+                    <DropdownMenuItem className="cursor-pointer" onClick={navigateToProfile}>
                       <User className="h-4 w-4 mr-2" />
                       Profile
                     </DropdownMenuItem>
@@ -211,7 +244,7 @@ export function Header({ onSearchChange }: HeaderProps) {
                 </Button>
                 <Button 
                   size="sm"
-                  onClick={handleLogin}
+                  onClick={handleSignup}
                   className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white"
                 >
                   Sign Up
