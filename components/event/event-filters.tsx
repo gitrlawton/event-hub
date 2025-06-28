@@ -29,14 +29,14 @@ interface EventFiltersProps {
 }
 
 const domainIcons = {
-  Code,
-  BarChart3,
-  Brain,
-  Shield,
-  Target,
-  Dna,
-  DollarSign,
-  Palette,
+  'Code': Code,
+  'BarChart3': BarChart3,
+  'Brain': Brain,
+  'Shield': Shield,
+  'Target': Target,
+  'Dna': Dna,
+  'DollarSign': DollarSign,
+  'Palette': Palette,
 };
 
 export function EventFilters({ onFiltersChange, initialDomain, currentFilters }: EventFiltersProps) {
@@ -168,7 +168,7 @@ export function EventFilters({ onFiltersChange, initialDomain, currentFilters }:
                         <>
                           {(() => {
                             const IconComponent = domainIcons[selectedDomainData.icon as keyof typeof domainIcons];
-                            return <IconComponent className="h-4 w-4" />;
+                            return IconComponent ? <IconComponent className="h-4 w-4" /> : null;
                           })()}
                           <span>{selectedDomainData.label}</span>
                         </>
@@ -190,7 +190,7 @@ export function EventFilters({ onFiltersChange, initialDomain, currentFilters }:
                   return (
                     <SelectItem key={domain.value} value={domain.value}>
                       <div className="flex items-center gap-2">
-                        <IconComponent className="h-4 w-4" />
+                        {IconComponent && <IconComponent className="h-4 w-4" />}
                         <span>{domain.label}</span>
                       </div>
                     </SelectItem>

@@ -33,7 +33,7 @@ interface HeaderProps {
 
 export function Header({ onSearchChange }: HeaderProps) {
   const [searchValue, setSearchValue] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // This would come from auth context in a real app
+  const [isLoggedIn, setIsLoggedIn] = useState(true); // Changed from false to true to show Add Event button
   const router = useRouter();
   const pathname = usePathname();
 
@@ -70,9 +70,14 @@ export function Header({ onSearchChange }: HeaderProps) {
     router.push('/profile');
   };
 
+  const navigateToAddEvent = () => {
+    router.push('/add-event');
+  };
+
   const isCalendarPage = pathname === '/calendar';
   const isHomePage = pathname === '/';
   const isProfilePage = pathname === '/profile';
+  const isAddEventPage = pathname === '/add-event';
 
   return (
     <header className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50 shadow-sm">
@@ -113,17 +118,6 @@ export function Header({ onSearchChange }: HeaderProps) {
               <Calendar className="h-4 w-4" />
               Events
             </Button>
-            {isLoggedIn && (
-              <Button
-                variant={isProfilePage ? "default" : "ghost"}
-                size="sm"
-                onClick={navigateToProfile}
-                className="flex items-center gap-2"
-              >
-                <User className="h-4 w-4" />
-                Profile
-              </Button>
-            )}
           </div>
 
           {/* Search Bar - Hidden on mobile, shown on tablet+ */}
@@ -141,11 +135,6 @@ export function Header({ onSearchChange }: HeaderProps) {
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
-            {/* Location Badge */}
-            <Badge variant="outline" className="hidden lg:flex items-center gap-1 px-3 py-1 border-gray-200 dark:border-gray-700">
-              <MapPin className="h-3 w-3" />
-              San Francisco Bay Area
-            </Badge>
 
             {/* Mobile Navigation & Search */}
             <div className="sm:hidden flex items-center space-x-2">
@@ -184,10 +173,18 @@ export function Header({ onSearchChange }: HeaderProps) {
                   <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"></span>
                 </Button>
 
-                {/* Create Event Button */}
-                <Button size="sm" className="hidden md:flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
+                {/* Add Event Button */}
+                <Button 
+                  size="sm" 
+                  onClick={navigateToAddEvent}
+                  className={`hidden md:flex items-center gap-2 ${
+                    isAddEventPage 
+                      ? 'bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700' 
+                      : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600'
+                  }`}
+                >
                   <Plus className="h-4 w-4" />
-                  Create Event
+                  Add Event
                 </Button>
 
                 {/* User Menu */}
@@ -216,9 +213,9 @@ export function Header({ onSearchChange }: HeaderProps) {
                       <Settings className="h-4 w-4 mr-2" />
                       Settings
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="md:hidden cursor-pointer">
+                    <DropdownMenuItem className="md:hidden cursor-pointer" onClick={navigateToAddEvent}>
                       <Plus className="h-4 w-4 mr-2" />
-                      Create Event
+                      Add Event
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 

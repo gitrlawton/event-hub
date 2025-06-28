@@ -19,7 +19,7 @@ import {
   Shield,
   Target,
   Dna,
-  DollarSign,
+  DollarSign as DollarSignIcon,
   Palette,
   TrendingUp,
   Calendar,
@@ -73,7 +73,7 @@ const techDisciplines = [
   {
     id: 'fintech',
     name: 'Fintech',
-    icon: DollarSign,
+    icon: DollarSignIcon,
     color: 'bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700',
     description: 'Banking, Payments, Cryptocurrency'
   },
@@ -223,26 +223,6 @@ export default function Home() {
               </Badge>
             </div>
           )}
-
-          {/* Call to Action */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button 
-              onClick={navigateToCalendar}
-              size="lg" 
-              className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-8 py-3 text-lg"
-            >
-              <Calendar className="h-5 w-5 mr-2" />
-              View Full Calendar
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg"
-              className="px-8 py-3 text-lg border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-              <TrendingUp className="h-5 w-5 mr-2" />
-              Browse Trending
-            </Button>
-          </div>
         </div>
       </section>
 
@@ -256,14 +236,6 @@ export default function Home() {
                 <Star className="h-6 w-6 text-yellow-500" />
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Featured Events</h3>
               </div>
-              <Button 
-                variant="outline" 
-                onClick={navigateToCalendar}
-                className="flex items-center gap-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
-              >
-                View All
-                <ArrowRight className="h-4 w-4" />
-              </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {featuredEvents.map(event => (
@@ -283,14 +255,6 @@ export default function Home() {
                   {selectedDiscipline ? 'Filtered Events' : 'Upcoming Events'}
                 </h3>
               </div>
-              <Button 
-                variant="outline" 
-                onClick={navigateToCalendar}
-                className="flex items-center gap-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
-              >
-                View Calendar
-                <ArrowRight className="h-4 w-4" />
-              </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {(selectedDiscipline ? filteredEvents : upcomingEvents).slice(0, 6).map(event => (
@@ -315,24 +279,6 @@ export default function Home() {
                 </div>
               </Card>
             )}
-          </section>
-
-          {/* Stats Section */}
-          <section className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-700">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">500+</div>
-                <div className="text-gray-600 dark:text-gray-300">Events This Month</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">50K+</div>
-                <div className="text-gray-600 dark:text-gray-300">Active Members</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">200+</div>
-                <div className="text-gray-600 dark:text-gray-300">Partner Organizations</div>
-              </div>
-            </div>
           </section>
         </div>
       </main>
