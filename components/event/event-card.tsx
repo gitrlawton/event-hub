@@ -218,7 +218,7 @@ export function EventCard({ event, compact = false, onRSVP, currentUserId = DEFA
           </div>
           <div className="flex items-center gap-2 text-gray-600">
             <Users className="h-4 w-4 text-blue-500" />
-            {event.attendees}/{event.maxAttendees} attendees
+            {event.attendees} attendees
           </div>
         </div>
 
@@ -265,20 +265,6 @@ export function EventCard({ event, compact = false, onRSVP, currentUserId = DEFA
                 <ExternalLink className="h-4 w-4 mr-2" />
                 View Details
               </Button>
-            </div>
-
-            {/* Attendance Progress */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>Attendance</span>
-                <span>{Math.round((event.attendees / event.maxAttendees) * 100)}% full</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${(event.attendees / event.maxAttendees) * 100}%` }}
-                />
-              </div>
             </div>
           </>
         )}

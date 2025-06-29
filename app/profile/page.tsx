@@ -5,6 +5,7 @@ import { Event } from '@/types/event';
 import { User } from '@/types/user';
 import { sampleEvents, getUserCreatedEvents } from '@/lib/events';
 import { getFollowing } from '@/lib/following';
+import { getAllUsers } from '@/lib/users';
 import { Header } from '@/components/layout/header';
 import { EventCard } from '@/components/event/event-card';
 import { EventDetailModal } from '@/components/event/event-detail-modal';
@@ -65,6 +66,11 @@ import {
   Briefcase,
   ExternalLink,
   X,
+  Sparkles,
+  Award,
+  Crown,
+  Search,
+  Trash2,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -88,6 +94,18 @@ const mockUser = {
   interests: ['React', 'AI/ML', 'Cloud Computing', 'Startups', 'Product Management'],
 };
 
+// Available companies for selection
+const availableCompanies = [
+  { name: 'Google', description: 'Leading AI and cloud innovation', events: 8 },
+  { name: 'Meta', description: 'Social media and VR pioneer', events: 5 },
+  { name: 'Microsoft', description: 'Enterprise and developer tools', events: 6 },
+  { name: 'Apple', description: 'Consumer technology leader', events: 3 },
+  { name: 'Amazon', description: 'Cloud computing and e-commerce', events: 7 },
+  { name: 'Netflix', description: 'Streaming and entertainment tech', events: 4 },
+  { name: 'Tesla', description: 'Electric vehicles and energy', events: 2 },
+  { name: 'Spotify', description: 'Music streaming technology', events: 3 },
+];
+
 export default function ProfilePage() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -97,6 +115,24 @@ export default function ProfilePage() {
   const [attendedEventsModalOpen, setAttendedEventsModalOpen] = useState(false);
   const [createdEventsModalOpen, setCreatedEventsModalOpen] = useState(false);
   const [followingModalOpen, setFollowingModalOpen] = useState(false);
+  
+  // Highlights state
+  const [highlightedCompanies, setHighlightedCompanies] = useState([
+    { name: 'Google', description: 'Leading AI and cloud innovation', events: 8, following: true },
+    { name: 'Meta', description: 'Social media and VR pioneer', events: 5, following: true },
+    { name: 'Microsoft', description: 'Enterprise and developer tools', events: 6, following: false },
+  ]);
+  const [highlightedUsers, setHighlightedUsers] = useState(['user-2', 'user-3', 'user-4']);
+  const [highlightedEvents, setHighlightedEvents] = useState(['1', '2', '3']);
+  
+  // Modal states for adding highlights
+  const [addCompanyModalOpen, setAddCompanyModalOpen] = useState(false);
+  const [addUserModalOpen, setAddUserModalOpen] = useState(false);
+  const [addEventModalOpen, setAddEventModalOpen] = useState(false);
+  const [companySearchQuery, setCompanySearchQuery] = useState('');
+  const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [eventSearchQuery, setEventSearchQuery] = useState('');
+  
   const [editForm, setEditForm] = useState({
     name: mockUser.name,
     bio: mockUser.bio,
@@ -123,6 +159,47 @@ export default function ProfilePage() {
   const followingUsers = useMemo(() => {
     return getFollowing(mockUser.id);
   }, []);
+
+  // Get all users for selection
+  const allUsers = useMemo(() => {
+    return getAllUsers().filter(user => user.id !== mockUser.id); // Exclude current user
+  }, []);
+
+  // Get highlighted user objects
+  const highlightedUserObjects = useMemo(() => {
+    return highlightedUsers.map(userId => allUsers.find(user => user.id === userId)).filter(Boolean) as User[];
+  }, [highlightedUsers, allUsers]);
+
+  // Get highlighted event objects
+  const highlightedEventObjects = useMemo(() => {
+    return highlightedEvents.map(eventId => sampleEvents.find(event => event.id === eventId)).filter(Boolean) as Event[];
+  }, [highlightedEvents]);
+
+  // Filtered data for search
+  const filteredCompanies = useMemo(() => {
+    return availableCompanies.filter(company => 
+      company.name.toLowerCase().includes(companySearchQuery.toLowerCase()) &&
+      !highlightedCompanies.some(hc => hc.name === company.name)
+    );
+  }, [companySearchQuery, highlightedCompanies]);
+
+  const filteredUsers = useMemo(() => {
+    return allUsers.filter(user => 
+      (user.name.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+       user.company.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+       user.role.toLowerCase().includes(userSearchQuery.toLowerCase())) &&
+      !highlightedUsers.includes(user.id)
+    );
+  }, [userSearchQuery, highlightedUsers, allUsers]);
+
+  const filteredEvents = useMemo(() => {
+    return sampleEvents.filter(event => 
+      (event.title.toLowerCase().includes(eventSearchQuery.toLowerCase()) ||
+       event.company.toLowerCase().includes(eventSearchQuery.toLowerCase()) ||
+       event.description.toLowerCase().includes(eventSearchQuery.toLowerCase())) &&
+      !highlightedEvents.includes(event.id)
+    );
+  }, [eventSearchQuery, highlightedEvents]);
 
   const handleEventSelect = (event: Event) => {
     setSelectedEvent(event);
@@ -160,6 +237,48 @@ export default function ProfilePage() {
   const navigateToUserProfile = (userName: string) => {
     const encodedName = encodeURIComponent(userName);
     router.push(`/user/${encodedName}`);
+  };
+
+  const navigateToCompany = (companyName: string) => {
+    const encodedCompany = encodeURIComponent(companyName);
+    router.push(`/calendar?company=${encodedCompany}&view=grid`);
+  };
+
+  // Highlight management functions
+  const addCompanyHighlight = (company: typeof availableCompanies[0]) => {
+    if (highlightedCompanies.length < 4) {
+      setHighlightedCompanies(prev => [...prev, { ...company, following: false }]);
+      setAddCompanyModalOpen(false);
+      setCompanySearchQuery('');
+    }
+  };
+
+  const removeCompanyHighlight = (companyName: string) => {
+    setHighlightedCompanies(prev => prev.filter(c => c.name !== companyName));
+  };
+
+  const addUserHighlight = (userId: string) => {
+    if (highlightedUsers.length < 4) {
+      setHighlightedUsers(prev => [...prev, userId]);
+      setAddUserModalOpen(false);
+      setUserSearchQuery('');
+    }
+  };
+
+  const removeUserHighlight = (userId: string) => {
+    setHighlightedUsers(prev => prev.filter(id => id !== userId));
+  };
+
+  const addEventHighlight = (eventId: string) => {
+    if (highlightedEvents.length < 4) {
+      setHighlightedEvents(prev => [...prev, eventId]);
+      setAddEventModalOpen(false);
+      setEventSearchQuery('');
+    }
+  };
+
+  const removeEventHighlight = (eventId: string) => {
+    setHighlightedEvents(prev => prev.filter(id => id !== eventId));
   };
 
   const renderEventsList = (events: Event[], emptyMessage: string) => {
@@ -306,6 +425,25 @@ export default function ProfilePage() {
     );
   };
 
+// Render placeholder card for adding highlights
+  const renderPlaceholderCard = (type: 'company' | 'user' | 'event', onClick: () => void) => (
+    <Card 
+      className="p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-300 cursor-pointer group bg-gray-50/50 dark:bg-gray-800/50 hover:bg-blue-50/50 dark:hover:bg-blue-900/20"
+      onClick={onClick}
+    >
+      <div className="flex items-center justify-center h-full min-h-[120px]">
+        <div className="text-center">
+          <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 group-hover:bg-blue-200 dark:group-hover:bg-blue-800 rounded-full flex items-center justify-center mx-auto mb-2 transition-colors">
+            <Plus className="h-6 w-6 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
+          </div>
+          <p className="text-sm text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            Add {type}
+          </p>
+        </div>
+      </div>
+    </Card>
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-blue-950">
       {/* Header */}
@@ -445,18 +583,6 @@ export default function ProfilePage() {
                 {isEditing ? (
                   <div className="space-y-3">
                     <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" value={mockUser.email} disabled />
-                    </div>
-                    <div>
-                      <Label htmlFor="phone">Phone</Label>
-                      <Input
-                        id="phone"
-                        value={editForm.phone}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
-                      />
-                    </div>
-                    <div>
                       <Label htmlFor="website">Website</Label>
                       <Input
                         id="website"
@@ -492,14 +618,6 @@ export default function ProfilePage() {
                 ) : (
                   <div className="space-y-3 text-sm">
                     <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-gray-400" />
-                      <span>{mockUser.email}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-gray-400" />
-                      <span>{mockUser.phone}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
                       <Globe className="h-4 w-4 text-gray-400" />
                       <a href={mockUser.website} className="text-blue-600 dark:text-blue-400 hover:underline">
                         {mockUser.website}
@@ -520,6 +638,207 @@ export default function ProfilePage() {
                   </div>
                 )}
               </Card>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Highlights Section */}
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2 flex items-center justify-center gap-3">
+              <Sparkles className="h-8 w-8 text-yellow-500" />
+              Highlights
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300">
+              My top companies, connections, and favorite events
+            </p>
+          </div>
+
+          <div className="space-y-8">
+            {/* Top Companies */}
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                <Building2 className="h-5 w-5 text-blue-500" />
+                Top Companies
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {highlightedCompanies.map((company, index) => (
+                  <Card 
+                    key={company.name} 
+                    className="p-4 hover:shadow-lg transition-all duration-300 cursor-pointer group relative overflow-hidden"
+                    onClick={() => navigateToCompany(company.name)}
+                  >
+                    {index === 0 && (
+                      <div className="absolute top-2 right-2">
+                        <Crown className="h-4 w-4 text-yellow-500" />
+                      </div>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeCompanyHighlight(company.name);
+                      }}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                    <div className="flex items-start gap-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-white font-bold text-lg">
+                        {company.name.charAt(0)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                          {company.name}
+                        </h4>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 line-clamp-2">
+                          {company.description}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-gray-600 dark:text-gray-300">
+                            {company.events} events
+                          </span>
+                          {company.following && (
+                            <Badge variant="secondary" className="text-xs">
+                              Following
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+                {/* Placeholder cards for remaining slots */}
+                {Array.from({ length: 4 - highlightedCompanies.length }).map((_, index) => (
+                  <div key={`company-placeholder-${index}`}>
+                    {renderPlaceholderCard('company', () => setAddCompanyModalOpen(true))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Top Connections */}
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                <Users className="h-5 w-5 text-green-500" />
+                Top Connections
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {highlightedUserObjects.map((user, index) => (
+                  <Card 
+                    key={user.id} 
+                    className="p-4 hover:shadow-lg transition-all duration-300 cursor-pointer group relative"
+                    onClick={() => navigateToUserProfile(user.name)}
+                  >
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeUserHighlight(user.id);
+                      }}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                    <div className="text-center">
+                      <div className="relative inline-block mb-3">
+                        <Avatar className="h-16 w-16 mx-auto">
+                          <AvatarImage src={user.avatar} />
+                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white text-lg">
+                            {user.name.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                        {index === 0 && (
+                          <div className="absolute -top-1 -right-1 bg-yellow-500 rounded-full p-1">
+                            <Award className="h-3 w-3 text-white" />
+                          </div>
+                        )}
+                        {user.verified && (
+                          <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-1">
+                            <CheckCircle className="h-3 w-3 text-white" />
+                          </div>
+                        )}
+                      </div>
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-1">
+                        {user.name}
+                      </h4>
+                      <p className="text-xs text-gray-600 dark:text-gray-300 mb-1">
+                        {user.role}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {user.company}
+                      </p>
+                    </div>
+                  </Card>
+                ))}
+                {/* Placeholder cards for remaining slots */}
+                {Array.from({ length: 4 - highlightedUsers.length }).map((_, index) => (
+                  <div key={`user-placeholder-${index}`}>
+                    {renderPlaceholderCard('user', () => setAddUserModalOpen(true))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Favorite Events */}
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                <Star className="h-5 w-5 text-yellow-500" />
+                Favorite Events
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {highlightedEventObjects.map((event, index) => (
+                  <Card 
+                    key={event.id} 
+                    className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group relative"
+                    onClick={() => handleEventSelect(event)}
+                  >
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-black/20 hover:bg-black/40"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeEventHighlight(event.id);
+                      }}
+                    >
+                      <X className="h-3 w-3 text-white" />
+                    </Button>
+                    <div className="relative h-32">
+                      <img 
+                        src={event.imageUrl} 
+                        alt={event.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      {index === 0 && (
+                        <div className="absolute top-2 left-2 bg-yellow-500 rounded-full p-1">
+                          <Trophy className="h-3 w-3 text-white" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                      <div className="absolute bottom-2 left-2 right-2">
+                        <h4 className="font-semibold text-white text-sm line-clamp-2 mb-1">
+                          {event.title}
+                        </h4>
+                        <div className="flex items-center gap-2 text-xs text-white/80">
+                          <Calendar className="h-3 w-3" />
+                          {event.date.toLocaleDateString()}
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+                {/* Placeholder cards for remaining slots */}
+                {Array.from({ length: 4 - highlightedEvents.length }).map((_, index) => (
+                  <div key={`event-placeholder-${index}`}>
+                    {renderPlaceholderCard('event', () => setAddEventModalOpen(true))}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -596,6 +915,172 @@ export default function ProfilePage() {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* Add Company Modal */}
+      <Dialog open={addCompanyModalOpen} onOpenChange={setAddCompanyModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5 text-blue-500" />
+              Add Company to Highlights
+            </DialogTitle>
+            <DialogDescription>
+              Search and select a company to add to your highlights
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search companies..."
+                value={companySearchQuery}
+                onChange={(e) => setCompanySearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="overflow-y-auto max-h-[50vh] space-y-2">
+              {filteredCompanies.map(company => (
+                <Card 
+                  key={company.name}
+                  className="p-3 hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => addCompanyHighlight(company)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-white font-bold">
+                      {company.name.charAt(0)}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100">{company.name}</h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{company.description}</p>
+                      <p className="text-xs text-gray-400">{company.events} events</p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+              {filteredCompanies.length === 0 && (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  No companies found
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add User Modal */}
+      <Dialog open={addUserModalOpen} onOpenChange={setAddUserModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-green-500" />
+              Add Connection to Highlights
+            </DialogTitle>
+            <DialogDescription>
+              Search and select a user to add to your highlights
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search users..."
+                value={userSearchQuery}
+                onChange={(e) => setUserSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="overflow-y-auto max-h-[50vh] space-y-2">
+              {filteredUsers.map(user => (
+                <Card 
+                  key={user.id}
+                  className="p-3 hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => addUserHighlight(user.id)}
+                >
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={user.avatar} />
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white">
+                        {user.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100">{user.name}</h4>
+                        {user.verified && (
+                          <CheckCircle className="h-4 w-4 text-blue-500" />
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{user.role} at {user.company}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">{user.bio}</p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+              {filteredUsers.length === 0 && (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  No users found
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Event Modal */}
+      <Dialog open={addEventModalOpen} onOpenChange={setAddEventModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Star className="h-5 w-5 text-yellow-500" />
+              Add Event to Highlights
+            </DialogTitle>
+            <DialogDescription>
+              Search and select an event to add to your highlights
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search events..."
+                value={eventSearchQuery}
+                onChange={(e) => setEventSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="overflow-y-auto max-h-[50vh] space-y-2">
+              {filteredEvents.map(event => (
+                <Card 
+                  key={event.id}
+                  className="p-3 hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => addEventHighlight(event.id)}
+                >
+                  <div className="flex items-start gap-3">
+                    <img 
+                      src={event.imageUrl} 
+                      alt={event.title}
+                      className="w-16 h-12 object-cover rounded-lg flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100 line-clamp-1">{event.title}</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{event.company}</p>
+                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                        <Calendar className="h-3 w-3" />
+                        {event.date.toLocaleDateString()}
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+              {filteredEvents.length === 0 && (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  No events found
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Events Attended Modal */}
       <Dialog open={attendedEventsModalOpen} onOpenChange={setAttendedEventsModalOpen}>

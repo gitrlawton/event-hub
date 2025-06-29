@@ -24,6 +24,9 @@ import {
   TrendingUp,
   Calendar,
   ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Lightbulb,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -86,6 +89,72 @@ const techDisciplines = [
   },
 ];
 
+// Recommendation component for horizontal scrolling
+function RecommendationRow({ title, events, onEventSelect }: {
+  title: string;
+  events: Event[];
+  onEventSelect: (event: Event) => void;
+}) {
+  const scrollContainerRef = useState<HTMLDivElement | null>(null);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef[0]) {
+      const scrollAmount = 320; // Width of one card plus gap
+      scrollContainerRef[0].scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  if (events.length === 0) return null;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <Lightbulb className="h-5 w-5 text-yellow-500" />
+          {title}
+        </h3>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => scroll('left')}
+            className="h-8 w-8 p-0"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => scroll('right')}
+            className="h-8 w-8 p-0"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+      
+      <div 
+        ref={(el) => scrollContainerRef[1](el)}
+        className="flex gap-6 overflow-x-auto scrollbar-hide pb-4"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {events.map(event => (
+          <div 
+            key={event.id} 
+            className="flex-shrink-0 w-80"
+            onClick={() => onEventSelect(event)}
+          >
+            <EventCard event={event} onRSVP={() => {}} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -147,6 +216,73 @@ export default function Home() {
   const upcomingEvents = useMemo(() => {
     return allEvents.slice(0, 6); // Show first 6 events
   }, [allEvents]);
+
+  // Get user's registered events to generate recommendations
+  const registeredEvents = useMemo(() => {
+    return allEvents.filter(event => event.rsvpStatus === 'registered');
+  }, [allEvents]);
+
+  // Generate recommendations based on user's registered events
+  const recommendations = useMemo(() => {
+    if (registeredEvents.length === 0) return null;
+
+    // Get unique companies, domains, and categories from registered events
+    const companies = [...new Set(registeredEvents.map(event => event.company))];
+    const categories = [...new Set(registeredEvents.map(event => event.category))];
+    
+    // Determine domains based on event content
+    const getDomainFromEvent = (event: Event) => {
+      const content = `${event.title} ${event.description} ${event.tags.join(' ')}`.toLowerCase();
+      
+      if (content.includes('ai') || content.includes('machine learning') || content.includes('tensorflow')) return 'ai-ml';
+      if (content.includes('data') || content.includes('analytics') || content.includes('python')) return 'data-science';
+      if (content.includes('react') || content.includes('javascript') || content.includes('development')) return 'software-engineering';
+      if (content.includes('security') || content.includes('cyber') || content.includes('blockchain')) return 'cybersecurity';
+      if (content.includes('product') || content.includes('strategy') || content.includes('management')) return 'product-management';
+      if (content.includes('ux') || content.includes('ui') || content.includes('design')) return 'ui-ux';
+      if (content.includes('fintech') || content.includes('finance') || content.includes('crypto')) return 'fintech';
+      if (content.includes('biotech') || content.includes('bio') || content.includes('healthcare')) return 'biotech';
+      
+      return 'software-engineering'; // default
+    };
+
+    const domains = [...new Set(registeredEvents.map(getDomainFromEvent))];
+
+    // Get events for recommendations (excluding already registered events)
+    const availableEvents = allEvents.filter(event => 
+      event.rsvpStatus !== 'registered' && event.status === 'approved'
+    );
+
+    // Company-based recommendations
+    const companyRecommendations = companies.length > 0 ? 
+      availableEvents.filter(event => companies.includes(event.company)).slice(0, 6) : [];
+
+    // Domain-based recommendations
+    const domainRecommendations = domains.length > 0 ? 
+      availableEvents.filter(event => {
+        const eventDomain = getDomainFromEvent(event);
+        return domains.includes(eventDomain);
+      }).slice(0, 6) : [];
+
+    // Category-based recommendations
+    const categoryRecommendations = categories.length > 0 ? 
+      availableEvents.filter(event => categories.includes(event.category)).slice(0, 6) : [];
+
+    return {
+      company: {
+        name: companies[0], // Use first company for display
+        events: companyRecommendations
+      },
+      domain: {
+        name: techDisciplines.find(d => d.id === domains[0])?.name || 'Software Engineering',
+        events: domainRecommendations
+      },
+      category: {
+        name: categories[0]?.charAt(0).toUpperCase() + categories[0]?.slice(1) || 'Conference',
+        events: categoryRecommendations
+      }
+    };
+  }, [registeredEvents, allEvents]);
 
   const handleEventSelect = (event: Event) => {
     setSelectedEvent(event);
@@ -252,6 +388,47 @@ export default function Home() {
               ))}
             </div>
           </section>
+
+          {/* Recommended Events */}
+          {recommendations && (
+            <section className="space-y-8">
+              <div className="text-center">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  Recommended for You
+                </h2>
+                <p className="text-lg text-gray-600 dark:text-gray-300">
+                  Based on your event preferences and interests
+                </p>
+              </div>
+
+              {/* Company-based recommendations */}
+              {recommendations.company.events.length > 0 && (
+                <RecommendationRow
+                  title={`Recommended because you're interested in ${recommendations.company.name}`}
+                  events={recommendations.company.events}
+                  onEventSelect={handleEventSelect}
+                />
+              )}
+
+              {/* Domain-based recommendations */}
+              {recommendations.domain.events.length > 0 && (
+                <RecommendationRow
+                  title={`Recommended because you're interested in ${recommendations.domain.name}`}
+                  events={recommendations.domain.events}
+                  onEventSelect={handleEventSelect}
+                />
+              )}
+
+              {/* Category-based recommendations */}
+              {recommendations.category.events.length > 0 && (
+                <RecommendationRow
+                  title={`Recommended because you're interested in ${recommendations.category.name} events`}
+                  events={recommendations.category.events}
+                  onEventSelect={handleEventSelect}
+                />
+              )}
+            </section>
+          )}
 
           {/* Upcoming Events */}
           <section>

@@ -40,10 +40,10 @@ export function WhosGoing({ event, currentUserId, compact = false }: WhosGoingPr
     const encodedName = encodeURIComponent(userName);
     router.push(`/user/${encodedName}`);
   };
-
-  if (followingAttendees.length === 0) {
-    return null; // Don't show the section if no following users are attending
-  }
+ 
+  // if (followingAttendees.length === 0) {
+  //   return null; // Don't show the section if no following users are attending
+  // }
 
   if (compact) {
     return (

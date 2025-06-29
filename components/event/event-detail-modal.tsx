@@ -107,7 +107,7 @@ export function EventDetailModal({ event, open, onOpenChange, onRSVP, currentUse
               </Badge>
             )}
           </div>
-          <div className="absolute top-4 right-4 flex gap-2">
+          <div className="absolute bottom-4 right-4 flex gap-2">
             <Button size="sm" variant="secondary" className="h-8 w-8 p-0">
               <Share2 className="h-4 w-4" />
             </Button>
@@ -179,7 +179,7 @@ export function EventDetailModal({ event, open, onOpenChange, onRSVP, currentUse
               <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <Users className="h-5 w-5 text-blue-500 flex-shrink-0" />
                 <div>
-                  <div className="font-medium">{event.attendees}/{event.maxAttendees}</div>
+                  <div className="font-medium">{event.attendees}</div>
                   <div className="text-sm text-gray-500">Attendees</div>
                 </div>
               </div>
@@ -226,44 +226,11 @@ export function EventDetailModal({ event, open, onOpenChange, onRSVP, currentUse
             {/* RSVP Actions */}
             <div className="space-y-3">
               {getRSVPButton()}
-              <Button variant="outline" className="w-full">
-                Add to Calendar
-              </Button>
             </div>
 
             {/* Who's Going */}
             <WhosGoing event={event} currentUserId={currentUserId} />
 
-            {/* Attendance Progress */}
-            <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium">Attendance</span>
-                <span className="text-sm text-gray-500">
-                  {Math.round((event.attendees / event.maxAttendees) * 100)}% full
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                <div 
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
-                  style={{ width: `${(event.attendees / event.maxAttendees) * 100}%` }}
-                />
-              </div>
-              <div className="text-xs text-gray-500">
-                {event.maxAttendees - event.attendees} spots remaining
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="space-y-2">
-              <Button variant="outline" className="w-full justify-start">
-                <Share2 className="h-4 w-4 mr-2" />
-                Share Event
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <BookmarkPlus className="h-4 w-4 mr-2" />
-                Save for Later
-              </Button>
-            </div>
           </div>
         </div>
       </DialogContent>
