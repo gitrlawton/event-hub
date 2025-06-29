@@ -46,12 +46,6 @@ export function EventDetailModal({ event, open, onOpenChange, onRSVP }: EventDet
             ✓ You're Registered
           </Button>
         );
-      case 'waitlist':
-        return (
-          <Button variant="outline" className="w-full text-yellow-600 border-yellow-200">
-            On Waitlist
-          </Button>
-        );
       default:
         return (
           <Button 
@@ -88,7 +82,7 @@ export function EventDetailModal({ event, open, onOpenChange, onRSVP }: EventDet
             {event.isOnline && (
               <Badge className="bg-green-500 text-white border-0">
                 <Globe className="h-3 w-3 mr-1" />
-                Online
+                Virtual
               </Badge>
             )}
           </div>

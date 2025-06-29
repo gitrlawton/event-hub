@@ -17,6 +17,7 @@ export interface Event {
   isOnline: boolean;
   rsvpStatus: 'not-registered' | 'registered' | 'waitlist';
   featured: boolean;
+  status: 'pending' | 'approved' | 'rejected';
 }
 
 export type EventCategory = 

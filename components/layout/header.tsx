@@ -25,6 +25,7 @@ import {
   Plus,
   Calendar,
   Home,
+  Shield,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -74,10 +75,15 @@ export function Header({ onSearchChange }: HeaderProps) {
     router.push('/add-event');
   };
 
+  const navigateToAdmin = () => {
+    router.push('/admin');
+  };
+
   const isCalendarPage = pathname === '/calendar';
   const isHomePage = pathname === '/';
   const isProfilePage = pathname === '/profile';
   const isAddEventPage = pathname === '/add-event';
+  const isAdminPage = pathname === '/admin';
 
   return (
     <header className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50 shadow-sm">
@@ -117,6 +123,16 @@ export function Header({ onSearchChange }: HeaderProps) {
             >
               <Calendar className="h-4 w-4" />
               Events
+            </Button>
+            {/* Admin Button - Only show for demo purposes */}
+            <Button
+              variant={isAdminPage ? "default" : "ghost"}
+              size="sm"
+              onClick={navigateToAdmin}
+              className="flex items-center gap-2"
+            >
+              <Shield className="h-4 w-4" />
+              Admin
             </Button>
           </div>
 
@@ -216,6 +232,11 @@ export function Header({ onSearchChange }: HeaderProps) {
                     <DropdownMenuItem className="md:hidden cursor-pointer" onClick={navigateToAddEvent}>
                       <Plus className="h-4 w-4 mr-2" />
                       Add Event
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="cursor-pointer" onClick={navigateToAdmin}>
+                      <Shield className="h-4 w-4 mr-2" />
+                      Admin Panel
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 

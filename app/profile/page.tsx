@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Event } from '@/types/event';
-import { sampleEvents } from '@/lib/events';
+import { sampleEvents, getUserCreatedEvents } from '@/lib/events';
 import { Header } from '@/components/layout/header';
 import { EventCard } from '@/components/event/event-card';
 import { EventDetailModal } from '@/components/event/event-detail-modal';
@@ -59,6 +59,7 @@ import {
   XCircle,
   AlertCircle,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 // Mock user data - in a real app, this would come from authentication context
 const mockUser = {
@@ -96,22 +97,16 @@ export default function ProfilePage() {
     twitter: mockUser.twitter,
     phone: mockUser.phone,
   });
+  const router = useRouter();
 
   // Filter events based on user's registration status
   const registeredEvents = useMemo(() => {
     return sampleEvents.filter(event => event.rsvpStatus === 'registered');
   }, []);
 
-  const waitlistEvents = useMemo(() => {
-    return sampleEvents.filter(event => event.rsvpStatus === 'waitlist');
-  }, []);
-
-  // Mock created events - in a real app, this would be fetched from API
+  // Get user's created events (including pending ones)
   const createdEvents = useMemo(() => {
-    return sampleEvents.slice(0, 3).map(event => ({
-      ...event,
-      organizer: mockUser.name,
-    }));
+    return getUserCreatedEvents();
   }, []);
 
   const handleEventSelect = (event: Event) => {
@@ -143,6 +138,10 @@ export default function ProfilePage() {
     setIsEditing(false);
   };
 
+  const navigateToAddEvent = () => {
+    router.push('/add-event');
+  };
+
   const renderEventsList = (events: Event[], emptyMessage: string) => {
     if (events.length === 0) {
       return (
@@ -171,7 +170,7 @@ export default function ProfilePage() {
     return (
       <div className="space-y-4">
         {events.map(event => (
-          <Card key={event.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleEventSelect(event)}>
+          <Card key={event.id} className={`p-4 hover:shadow-md transition-shadow cursor-pointer ${event.status === 'pending' ? 'opacity-60' : ''}`} onClick={() => handleEventSelect(event)}>
             <div className="flex items-start gap-4">
               <img 
                 src={event.imageUrl} 
@@ -181,7 +180,15 @@ export default function ProfilePage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h3 className="font-semibold text-lg leading-tight mb-1">{event.title}</h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-semibold text-lg leading-tight">{event.title}</h3>
+                      {event.status === 'pending' && (
+                        <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                          <AlertCircle className="h-3 w-3 mr-1" />
+                          Pending
+                        </Badge>
+                      )}
+                    </div>
                     <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 mb-2">
                       {event.description}
                     </p>
@@ -205,12 +212,6 @@ export default function ProfilePage() {
                       <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Registered
-                      </Badge>
-                    )}
-                    {event.rsvpStatus === 'waitlist' && (
-                      <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                        <AlertCircle className="h-3 w-3 mr-1" />
-                        Waitlist
                       </Badge>
                     )}
                   </div>
@@ -350,7 +351,7 @@ export default function ProfilePage() {
                 </Card>
                 <Card className="p-4 text-center">
                   <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    {mockUser.eventsCreated}
+                    {createdEvents.length}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">Events Created</div>
                 </Card>
@@ -452,14 +453,10 @@ export default function ProfilePage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="flex items-center justify-between">
-            <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:grid-cols-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:grid-cols-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
               <TabsTrigger value="registered" className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4" />
                 Registered ({registeredEvents.length})
-              </TabsTrigger>
-              <TabsTrigger value="waitlist" className="flex items-center gap-2">
-                <AlertCircle className="h-4 w-4" />
-                Waitlist ({waitlistEvents.length})
               </TabsTrigger>
               <TabsTrigger value="created" className="flex items-center gap-2">
                 <Plus className="h-4 w-4" />
@@ -496,21 +493,12 @@ export default function ProfilePage() {
             </div>
           </TabsContent>
 
-          <TabsContent value="waitlist" className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                Waitlist Events
-              </h2>
-              {renderEventsList(waitlistEvents, 'No waitlist events')}
-            </div>
-          </TabsContent>
-
           <TabsContent value="created" className="space-y-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 Created Events
               </h2>
-              <Button>
+              <Button onClick={navigateToAddEvent}>
                 <Plus className="h-4 w-4 mr-2" />
                 Create New Event
               </Button>

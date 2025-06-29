@@ -23,7 +23,7 @@ import {
   Users,
   Tag,
   Image as ImageIcon,
-  DollarSign as DollarSignIcon,
+  DollarSign,
   AlertCircle,
   ArrowLeft,
   Loader2,
@@ -41,7 +41,7 @@ import {
   Gift,
 } from 'lucide-react';
 import { EventCategory, TechDomain } from '@/types/event';
-import { eventCategories, techDomains } from '@/lib/events';
+import { eventCategories, techDomains, createEvent } from '@/lib/events';
 
 interface EventFormData {
   title: string;
@@ -73,7 +73,7 @@ const domainIcons = {
   'cybersecurity': Shield,
   'product-management': Target,
   'biotech': Dna,
-  'fintech': DollarSignIcon,
+  'fintech': DollarSign,
   'ui-ux': Palette,
 };
 
@@ -189,14 +189,32 @@ export default function AddEventPage() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // In a real app, this would make an API call to create the event
-      console.log('Creating event:', formData);
+      // Create the event with pending status
+      const eventData = {
+        title: formData.title,
+        description: formData.description,
+        date: new Date(formData.date),
+        startTime: formData.startTime,
+        endTime: formData.endTime,
+        location: formData.isOnline ? 'Virtual' : `${formData.city}, ${formData.state}`,
+        venue: formData.isOnline ? 'Virtual Event' : formData.venue,
+        category: formData.categories[0], // Use first selected category
+        organizer: formData.companyName,
+        maxAttendees: parseInt(formData.maxAttendees) || 100,
+        price: parseFloat(formData.price) || 0,
+        imageUrl: formData.imageUrl || 'https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg',
+        tags: formData.tags,
+        isOnline: formData.isOnline,
+      };
+
+      const newEvent = createEvent(eventData);
+      console.log('Created event:', newEvent);
       
       setSuccess(true);
       
-      // Redirect to calendar page after success
+      // Redirect to profile page after success
       setTimeout(() => {
-        router.push('/calendar');
+        router.push('/profile');
       }, 2000);
     } catch (err) {
       setError('Failed to create event. Please try again.');
@@ -219,13 +237,13 @@ export default function AddEventPage() {
               <Check className="h-8 w-8 text-green-600 dark:text-green-400" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              Event Created Successfully!
+              Event Submitted Successfully!
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Your event has been submitted and will be reviewed before being published.
+              Your event has been submitted for review and will appear in your profile as "Pending". Once approved, it will be visible to all users on the platform.
             </p>
-            <Button onClick={() => router.push('/calendar')}>
-              View All Events
+            <Button onClick={() => router.push('/profile')}>
+              View My Events
             </Button>
           </Card>
         </div>
@@ -642,7 +660,7 @@ export default function AddEventPage() {
                     Ticket Price (USD)
                   </Label>
                   <div className="relative">
-                    <DollarSignIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
                       id="price"
                       type="number"

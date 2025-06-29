@@ -20,6 +20,7 @@ export const sampleEvents: Event[] = [
     isOnline: false,
     rsvpStatus: 'not-registered',
     featured: true,
+    status: 'approved',
   },
   {
     id: '2',
@@ -40,6 +41,7 @@ export const sampleEvents: Event[] = [
     isOnline: true,
     rsvpStatus: 'registered',
     featured: false,
+    status: 'approved',
   },
   {
     id: '3',
@@ -60,6 +62,7 @@ export const sampleEvents: Event[] = [
     isOnline: false,
     rsvpStatus: 'not-registered',
     featured: true,
+    status: 'approved',
   },
   {
     id: '4',
@@ -80,6 +83,7 @@ export const sampleEvents: Event[] = [
     isOnline: false,
     rsvpStatus: 'waitlist',
     featured: false,
+    status: 'approved',
   },
   {
     id: '5',
@@ -100,6 +104,7 @@ export const sampleEvents: Event[] = [
     isOnline: true,
     rsvpStatus: 'registered',
     featured: true,
+    status: 'approved',
   },
   {
     id: '6',
@@ -120,6 +125,7 @@ export const sampleEvents: Event[] = [
     isOnline: false,
     rsvpStatus: 'not-registered',
     featured: false,
+    status: 'approved',
   },
   {
     id: '7',
@@ -140,6 +146,7 @@ export const sampleEvents: Event[] = [
     isOnline: false,
     rsvpStatus: 'not-registered',
     featured: true,
+    status: 'approved',
   },
   {
     id: '8',
@@ -160,6 +167,7 @@ export const sampleEvents: Event[] = [
     isOnline: false,
     rsvpStatus: 'registered',
     featured: false,
+    status: 'approved',
   },
   {
     id: '9',
@@ -180,6 +188,7 @@ export const sampleEvents: Event[] = [
     isOnline: true,
     rsvpStatus: 'not-registered',
     featured: true,
+    status: 'approved',
   },
   {
     id: '10',
@@ -200,6 +209,7 @@ export const sampleEvents: Event[] = [
     isOnline: false,
     rsvpStatus: 'waitlist',
     featured: false,
+    status: 'approved',
   },
   {
     id: '11',
@@ -220,6 +230,7 @@ export const sampleEvents: Event[] = [
     isOnline: false,
     rsvpStatus: 'not-registered',
     featured: true,
+    status: 'approved',
   },
   {
     id: '12',
@@ -240,8 +251,12 @@ export const sampleEvents: Event[] = [
     isOnline: false,
     rsvpStatus: 'registered',
     featured: true,
+    status: 'approved',
   },
 ];
+
+// Store for user-created events (in a real app, this would be in a database)
+let userCreatedEvents: Event[] = [];
 
 export const eventCategories: { value: EventCategory; label: string; color: string }[] = [
   { value: 'conference', label: 'Conference', color: 'bg-blue-500' },
@@ -318,4 +333,45 @@ export function filterEvents(events: Event[], filters: Partial<{
     }
     return true;
   });
+}
+
+// Function to create a new event
+export function createEvent(eventData: Omit<Event, 'id' | 'attendees' | 'rsvpStatus' | 'featured' | 'status'>): Event {
+  const newEvent: Event = {
+    ...eventData,
+    id: `user-event-${Date.now()}`,
+    attendees: 0,
+    rsvpStatus: 'not-registered',
+    featured: false,
+    status: 'pending',
+  };
+  
+  userCreatedEvents.push(newEvent);
+  return newEvent;
+}
+
+// Function to get user's created events
+export function getUserCreatedEvents(): Event[] {
+  return userCreatedEvents;
+}
+
+// Function to approve an event (adds it to main events list but keeps it in user's created list)
+export function approveEvent(eventId: string): void {
+  const event = userCreatedEvents.find(event => event.id === eventId);
+  if (event) {
+    // Update the status to approved
+    event.status = 'approved';
+    // Add to main events list for public visibility
+    sampleEvents.push({ ...event });
+  }
+}
+
+// Function to get all publicly visible events (only approved events)
+export function getAllEvents(): Event[] {
+  return [...sampleEvents, ...userCreatedEvents.filter(event => event.status === 'approved')];
+}
+
+// Function to get pending events for admin
+export function getPendingEvents(): Event[] {
+  return userCreatedEvents.filter(event => event.status === 'pending');
 }
