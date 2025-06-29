@@ -9,6 +9,7 @@ export interface Event {
   venue: string;
   category: EventCategory;
   organizer: string;
+  company: string;
   attendees: number;
   maxAttendees: number;
   price: number;
@@ -18,6 +19,7 @@ export interface Event {
   rsvpStatus: 'not-registered' | 'registered' | 'waitlist';
   featured: boolean;
   status: 'pending' | 'approved' | 'rejected';
+  attendeeIds: string[]; // Array of user IDs who are attending
 }
 
 export type EventCategory = 
@@ -41,6 +43,7 @@ export type TechDomain =
 export interface EventFilters {
   category?: EventCategory;
   domain?: TechDomain;
+  company?: string;
   dateRange?: {
     start: Date;
     end: Date;

@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { WhosGoing } from '@/components/event/whos-going';
 import {
   Calendar,
   Clock,
@@ -23,17 +24,25 @@ import {
   Share2,
   BookmarkPlus,
   ExternalLink,
+  Building2,
 } from 'lucide-react';
 import { eventCategories } from '@/lib/events';
+import { useRouter } from 'next/navigation';
 
 interface EventDetailModalProps {
   event: Event | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onRSVP?: (eventId: string) => void;
+  currentUserId?: string;
 }
 
-export function EventDetailModal({ event, open, onOpenChange, onRSVP }: EventDetailModalProps) {
+// Mock current user ID - in a real app, this would come from authentication context
+const DEFAULT_CURRENT_USER_ID = 'user-1';
+
+export function EventDetailModal({ event, open, onOpenChange, onRSVP, currentUserId = DEFAULT_CURRENT_USER_ID }: EventDetailModalProps) {
+  const router = useRouter();
+
   if (!event) return null;
 
   const category = eventCategories.find(cat => cat.value === event.category);
@@ -56,6 +65,18 @@ export function EventDetailModal({ event, open, onOpenChange, onRSVP }: EventDet
           </Button>
         );
     }
+  };
+
+  const handleOrganizerClick = () => {
+    const encodedName = encodeURIComponent(event.organizer);
+    router.push(`/user/${encodedName}`);
+    onOpenChange(false); // Close the modal
+  };
+
+  const handleCompanyClick = () => {
+    const encodedCompany = encodeURIComponent(event.company);
+    router.push(`/calendar?company=${encodedCompany}&view=grid`);
+    onOpenChange(false); // Close the modal
   };
 
   return (
@@ -99,9 +120,22 @@ export function EventDetailModal({ event, open, onOpenChange, onRSVP }: EventDet
         <DialogHeader>
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <DialogTitle className="text-2xl leading-tight mb-2">
+              <DialogTitle className="text-2xl leading-tight mb-3">
                 {event.title}
               </DialogTitle>
+              
+              {/* Company - Right beneath title - Clickable */}
+              <div 
+                className="flex items-center gap-2 text-lg text-gray-700 dark:text-gray-300 mb-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 -mx-3 transition-colors"
+                onClick={handleCompanyClick}
+              >
+                <Building2 className="h-5 w-5 text-blue-500" />
+                <span className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                  {event.company}
+                </span>
+                <ExternalLink className="h-4 w-4 text-gray-400 ml-auto" />
+              </div>
+              
               <DialogDescription className="text-base leading-relaxed">
                 {event.description}
               </DialogDescription>
@@ -121,28 +155,28 @@ export function EventDetailModal({ event, open, onOpenChange, onRSVP }: EventDet
           <div className="lg:col-span-2 space-y-6">
             {/* Key Information */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <Calendar className="h-5 w-5 text-blue-500 flex-shrink-0" />
                 <div>
                   <div className="font-medium">{event.date.toLocaleDateString()}</div>
                   <div className="text-sm text-gray-500">Event Date</div>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <Clock className="h-5 w-5 text-blue-500 flex-shrink-0" />
                 <div>
                   <div className="font-medium">{event.startTime} - {event.endTime}</div>
                   <div className="text-sm text-gray-500">Duration</div>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <MapPin className="h-5 w-5 text-blue-500 flex-shrink-0" />
                 <div>
                   <div className="font-medium">{event.location}</div>
                   <div className="text-sm text-gray-500">{event.venue}</div>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <Users className="h-5 w-5 text-blue-500 flex-shrink-0" />
                 <div>
                   <div className="font-medium">{event.attendees}/{event.maxAttendees}</div>
@@ -163,10 +197,13 @@ export function EventDetailModal({ event, open, onOpenChange, onRSVP }: EventDet
               </div>
             </div>
 
-            {/* Organizer */}
+            {/* Organizer - Now clickable */}
             <div>
               <h3 className="font-semibold mb-3">Organizer</h3>
-              <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+              <div 
+                className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                onClick={handleOrganizerClick}
+              >
                 <Avatar className="h-12 w-12">
                   <AvatarImage src="" />
                   <AvatarFallback className="bg-blue-100 text-blue-600">
@@ -174,13 +211,12 @@ export function EventDetailModal({ event, open, onOpenChange, onRSVP }: EventDet
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <div className="font-medium">{event.organizer}</div>
-                  <div className="text-sm text-gray-500">Event Organizer</div>
+                  <div className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                    {event.organizer}
+                  </div>
+                  <div className="text-sm text-gray-500">Event Organizer • Click to view profile</div>
                 </div>
-                <Button variant="outline" size="sm">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  View Profile
-                </Button>
+                <ExternalLink className="h-4 w-4 text-gray-400" />
               </div>
             </div>
           </div>
@@ -195,8 +231,11 @@ export function EventDetailModal({ event, open, onOpenChange, onRSVP }: EventDet
               </Button>
             </div>
 
+            {/* Who's Going */}
+            <WhosGoing event={event} currentUserId={currentUserId} />
+
             {/* Attendance Progress */}
-            <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-medium">Attendance</span>
                 <span className="text-sm text-gray-500">

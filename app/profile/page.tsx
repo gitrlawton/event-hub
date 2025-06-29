@@ -2,7 +2,9 @@
 
 import { useState, useMemo } from 'react';
 import { Event } from '@/types/event';
+import { User } from '@/types/user';
 import { sampleEvents, getUserCreatedEvents } from '@/lib/events';
+import { getFollowing } from '@/lib/following';
 import { Header } from '@/components/layout/header';
 import { EventCard } from '@/components/event/event-card';
 import { EventDetailModal } from '@/components/event/event-detail-modal';
@@ -31,7 +33,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  User,
+  User as UserIcon,
   Settings,
   LogOut,
   Calendar,
@@ -58,6 +60,11 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  UserPlus,
+  Building2,
+  Briefcase,
+  ExternalLink,
+  X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -87,6 +94,9 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('registered');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [attendedEventsModalOpen, setAttendedEventsModalOpen] = useState(false);
+  const [createdEventsModalOpen, setCreatedEventsModalOpen] = useState(false);
+  const [followingModalOpen, setFollowingModalOpen] = useState(false);
   const [editForm, setEditForm] = useState({
     name: mockUser.name,
     bio: mockUser.bio,
@@ -107,6 +117,11 @@ export default function ProfilePage() {
   // Get user's created events (including pending ones)
   const createdEvents = useMemo(() => {
     return getUserCreatedEvents();
+  }, []);
+
+  // Get users that current user is following
+  const followingUsers = useMemo(() => {
+    return getFollowing(mockUser.id);
   }, []);
 
   const handleEventSelect = (event: Event) => {
@@ -140,6 +155,11 @@ export default function ProfilePage() {
 
   const navigateToAddEvent = () => {
     router.push('/add-event');
+  };
+
+  const navigateToUserProfile = (userName: string) => {
+    const encodedName = encodeURIComponent(userName);
+    router.push(`/user/${encodedName}`);
   };
 
   const renderEventsList = (events: Event[], emptyMessage: string) => {
@@ -217,6 +237,68 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    );
+  };
+
+  const renderFollowingList = () => {
+    if (followingUsers.length === 0) {
+      return (
+        <Card className="p-12 text-center bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+          <div className="text-gray-500 dark:text-gray-400">
+            <UserPlus className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <h3 className="text-lg font-medium mb-2">Not following anyone yet</h3>
+            <p className="text-sm">Start following other users to see their profiles and events here!</p>
+          </div>
+        </Card>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {followingUsers.map(user => (
+          <Card key={user.id} className="p-6 hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigateToUserProfile(user.name)}>
+            <div className="flex items-start gap-4">
+              <Avatar className="h-12 w-12">
+                <AvatarImage src={user.avatar} />
+                <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
+                  {user.name.split(' ').map(n => n[0]).join('')}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="font-semibold text-lg leading-tight text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                    {user.name}
+                  </h3>
+                  {user.verified && (
+                    <CheckCircle className="h-4 w-4 text-blue-500" />
+                  )}
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 mb-2">
+                  <Briefcase className="h-3 w-3" />
+                  <span>{user.role}</span>
+                  <span>•</span>
+                  <Building2 className="h-3 w-3" />
+                  <span>{user.company}</span>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 mb-3">
+                  {user.bio}
+                </p>
+                <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    {user.eventsCreated} events
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Users className="h-3 w-3" />
+                    {user.totalConnections} connections
+                  </div>
+                </div>
+              </div>
+              <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0" />
             </div>
           </Card>
         ))}
@@ -303,11 +385,27 @@ export default function ProfilePage() {
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {mockUser.interests.map(interest => (
-                          <Badge key={interest} variant="secondary">
-                            {interest}
-                          </Badge>
-                        ))}
+                        {/* Display "Events Attended", "Events Created", and "Following" hyperlink text here */}
+                        <button
+                          onClick={() => setAttendedEventsModalOpen(true)}
+                          className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors underline text-sm"
+                        >
+                          {mockUser.eventsAttended} Events Attended
+                        </button>
+                        <span className="text-gray-300 dark:text-gray-600">•</span>
+                        <button
+                          onClick={() => setCreatedEventsModalOpen(true)}
+                          className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors underline text-sm"
+                        >
+                          {createdEvents.length} Events Created
+                        </button>
+                        <span className="text-gray-300 dark:text-gray-600">•</span>
+                        <button
+                          onClick={() => setFollowingModalOpen(true)}
+                          className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors underline text-sm"
+                        >
+                          {followingUsers.length} Following
+                        </button>
                       </div>
                     </>
                   )}
@@ -340,31 +438,9 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Stats Cards */}
+            {/* Contact Info */}
             <div className="lg:w-80">
-              <div className="grid grid-cols-3 gap-4">
-                <Card className="p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                    {mockUser.eventsAttended}
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Events Attended</div>
-                </Card>
-                <Card className="p-4 text-center">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    {createdEvents.length}
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Events Created</div>
-                </Card>
-                <Card className="p-4 text-center">
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                    {mockUser.totalConnections}
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Connections</div>
-                </Card>
-              </div>
-
-              {/* Contact Info */}
-              <Card className="mt-4 p-4">
+              <Card className="p-4">
                 <h3 className="font-semibold mb-3">Contact Information</h3>
                 {isEditing ? (
                   <div className="space-y-3">
@@ -453,7 +529,7 @@ export default function ProfilePage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="flex items-center justify-between">
-            <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:grid-cols-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:grid-cols-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
               <TabsTrigger value="registered" className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4" />
                 Registered ({registeredEvents.length})
@@ -461,6 +537,10 @@ export default function ProfilePage() {
               <TabsTrigger value="created" className="flex items-center gap-2">
                 <Plus className="h-4 w-4" />
                 Created ({createdEvents.length})
+              </TabsTrigger>
+              <TabsTrigger value="following" className="flex items-center gap-2">
+                <UserPlus className="h-4 w-4" />
+                Following ({followingUsers.length})
               </TabsTrigger>
             </TabsList>
 
@@ -505,8 +585,247 @@ export default function ProfilePage() {
             </div>
             {renderEventsList(createdEvents, 'No events created yet')}
           </TabsContent>
+
+          <TabsContent value="following" className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                Following
+              </h2>
+              {renderFollowingList()}
+            </div>
+          </TabsContent>
         </Tabs>
       </main>
+
+      {/* Events Attended Modal */}
+      <Dialog open={attendedEventsModalOpen} onOpenChange={setAttendedEventsModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh]">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="flex items-center gap-2">
+                <Star className="h-5 w-5 text-blue-500" />
+                Events Attended ({mockUser.eventsAttended})
+              </DialogTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setAttendedEventsModalOpen(false)}
+                className="h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <DialogDescription>
+              Events you have attended or registered for
+            </DialogDescription>
+          </DialogHeader>
+          <div className="overflow-y-auto max-h-[60vh] space-y-4">
+            {registeredEvents.map(event => (
+              <Card key={event.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => {
+                handleEventSelect(event);
+                setAttendedEventsModalOpen(false);
+              }}>
+                <div className="flex items-start gap-4">
+                  <img 
+                    src={event.imageUrl} 
+                    alt={event.title}
+                    className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-lg leading-tight mb-1">{event.title}</h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 mb-2">
+                      {event.description}
+                    </p>
+                    <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-4 w-4" />
+                        {event.date.toLocaleDateString()}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4" />
+                        {event.location}
+                      </div>
+                    </div>
+                  </div>
+                  <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    Registered
+                  </Badge>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Events Created Modal */}
+      <Dialog open={createdEventsModalOpen} onOpenChange={setCreatedEventsModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh]">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="flex items-center gap-2">
+                <Plus className="h-5 w-5 text-green-500" />
+                Events Created ({createdEvents.length})
+              </DialogTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCreatedEventsModalOpen(false)}
+                className="h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <DialogDescription>
+              Events you have organized and created
+            </DialogDescription>
+          </DialogHeader>
+          <div className="overflow-y-auto max-h-[60vh] space-y-4">
+            {createdEvents.length === 0 ? (
+              <div className="text-center py-12">
+                <Plus className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                  No events created yet
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-4">
+                  Start organizing events to build your community!
+                </p>
+                <Button onClick={() => {
+                  setCreatedEventsModalOpen(false);
+                  navigateToAddEvent();
+                }}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Your First Event
+                </Button>
+              </div>
+            ) : (
+              createdEvents.map(event => (
+                <Card key={event.id} className={`p-4 hover:shadow-md transition-shadow cursor-pointer ${event.status === 'pending' ? 'opacity-60' : ''}`} onClick={() => {
+                  handleEventSelect(event);
+                  setCreatedEventsModalOpen(false);
+                }}>
+                  <div className="flex items-start gap-4">
+                    <img 
+                      src={event.imageUrl} 
+                      alt={event.title}
+                      className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-lg leading-tight">{event.title}</h3>
+                        {event.status === 'pending' && (
+                          <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                            <AlertCircle className="h-3 w-3 mr-1" />
+                            Pending
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 mb-2">
+                        {event.description}
+                      </p>
+                      <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          {event.date.toLocaleDateString()}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-4 w-4" />
+                          {event.location}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Following Modal */}
+      <Dialog open={followingModalOpen} onOpenChange={setFollowingModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh]">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="flex items-center gap-2">
+                <UserPlus className="h-5 w-5 text-purple-500" />
+                Following ({followingUsers.length})
+              </DialogTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setFollowingModalOpen(false)}
+                className="h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <DialogDescription>
+              People you are following in the community
+            </DialogDescription>
+          </DialogHeader>
+          <div className="overflow-y-auto max-h-[60vh] space-y-4">
+            {followingUsers.length === 0 ? (
+              <div className="text-center py-12">
+                <UserPlus className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                  Not following anyone yet
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400">
+                  Start following other users to see their profiles and events here!
+                </p>
+              </div>
+            ) : (
+              followingUsers.map(user => (
+                <Card key={user.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => {
+                  navigateToUserProfile(user.name);
+                  setFollowingModalOpen(false);
+                }}>
+                  <div className="flex items-start gap-4">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={user.avatar} />
+                      <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
+                        {user.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-lg leading-tight text-blue-600 dark:text-blue-400">
+                          {user.name}
+                        </h3>
+                        {user.verified && (
+                          <CheckCircle className="h-4 w-4 text-blue-500" />
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 mb-2">
+                        <Briefcase className="h-3 w-3" />
+                        <span>{user.role}</span>
+                        <span>•</span>
+                        <Building2 className="h-3 w-3" />
+                        <span>{user.company}</span>
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 mb-3">
+                        {user.bio}
+                      </p>
+                      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {user.eventsCreated} events
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Users className="h-3 w-3" />
+                          {user.totalConnections} connections
+                        </div>
+                      </div>
+                    </div>
+                    <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Event Detail Modal */}
       <EventDetailModal

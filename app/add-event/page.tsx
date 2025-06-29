@@ -200,6 +200,7 @@ export default function AddEventPage() {
         venue: formData.isOnline ? 'Virtual Event' : formData.venue,
         category: formData.categories[0], // Use first selected category
         organizer: formData.companyName,
+        company: formData.companyName, // Use company name as the company field
         maxAttendees: parseInt(formData.maxAttendees) || 100,
         price: parseFloat(formData.price) || 0,
         imageUrl: formData.imageUrl || 'https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg',

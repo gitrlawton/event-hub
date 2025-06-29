@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Event } from '@/types/event';
-import { sampleEvents, filterEvents } from '@/lib/events';
+import { getAllEvents, filterEvents } from '@/lib/events';
 import { Header } from '@/components/layout/header';
 import { EventCard } from '@/components/event/event-card';
 import { EventDetailModal } from '@/components/event/event-detail-modal';
@@ -93,9 +93,14 @@ export default function Home() {
   const [headerSearch, setHeaderSearch] = useState('');
   const router = useRouter();
 
+  // Get all events (including approved user-created events)
+  const allEvents = useMemo(() => {
+    return getAllEvents();
+  }, []);
+
   // Simple filtering for homepage - just search and discipline
   const filteredEvents = useMemo(() => {
-    let events = sampleEvents;
+    let events = allEvents;
     
     // Filter by search
     if (headerSearch) {
@@ -103,6 +108,8 @@ export default function Home() {
       events = events.filter(event =>
         event.title.toLowerCase().includes(searchLower) ||
         event.description.toLowerCase().includes(searchLower) ||
+        event.company.toLowerCase().includes(searchLower) ||
+        event.organizer.toLowerCase().includes(searchLower) ||
         event.tags.some(tag => tag.toLowerCase().includes(searchLower))
       );
     }
@@ -131,15 +138,15 @@ export default function Home() {
     }
     
     return events;
-  }, [headerSearch, selectedDiscipline]);
+  }, [allEvents, headerSearch, selectedDiscipline]);
 
   const featuredEvents = useMemo(() => {
-    return sampleEvents.filter(event => event.featured);
-  }, []);
+    return allEvents.filter(event => event.featured);
+  }, [allEvents]);
 
   const upcomingEvents = useMemo(() => {
-    return sampleEvents.slice(0, 6); // Show first 6 events
-  }, []);
+    return allEvents.slice(0, 6); // Show first 6 events
+  }, [allEvents]);
 
   const handleEventSelect = (event: Event) => {
     setSelectedEvent(event);
@@ -172,7 +179,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Discover Amazing
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
               {' '}Tech Events

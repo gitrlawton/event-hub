@@ -12,6 +12,7 @@ export const sampleEvents: Event[] = [
     venue: 'Moscone Center',
     category: 'conference',
     organizer: 'React Community',
+    company: 'Meta',
     attendees: 847,
     maxAttendees: 1000,
     price: 299,
@@ -21,6 +22,7 @@ export const sampleEvents: Event[] = [
     rsvpStatus: 'not-registered',
     featured: true,
     status: 'approved',
+    attendeeIds: ['user-2', 'user-3', 'user-4'], // Sarah, Mike, Alex are attending
   },
   {
     id: '2',
@@ -33,6 +35,7 @@ export const sampleEvents: Event[] = [
     venue: 'Virtual Event',
     category: 'workshop',
     organizer: 'TensorFlow Community',
+    company: 'Google',
     attendees: 234,
     maxAttendees: 300,
     price: 79,
@@ -42,6 +45,7 @@ export const sampleEvents: Event[] = [
     rsvpStatus: 'registered',
     featured: false,
     status: 'approved',
+    attendeeIds: ['user-2', 'user-5'], // Sarah and Emma are attending
   },
   {
     id: '3',
@@ -54,6 +58,7 @@ export const sampleEvents: Event[] = [
     venue: 'WeWork Hudson Yards',
     category: 'networking',
     organizer: 'NYC Tech Meetup',
+    company: 'WeWork',
     attendees: 156,
     maxAttendees: 200,
     price: 0,
@@ -63,6 +68,7 @@ export const sampleEvents: Event[] = [
     rsvpStatus: 'not-registered',
     featured: true,
     status: 'approved',
+    attendeeIds: ['user-3', 'user-4', 'user-5'], // Mike, Alex, Emma are attending
   },
   {
     id: '4',
@@ -75,6 +81,7 @@ export const sampleEvents: Event[] = [
     venue: 'Austin Convention Center',
     category: 'hackathon',
     organizer: 'Blockchain Association',
+    company: 'Coinbase',
     attendees: 89,
     maxAttendees: 150,
     price: 25,
@@ -84,6 +91,7 @@ export const sampleEvents: Event[] = [
     rsvpStatus: 'waitlist',
     featured: false,
     status: 'approved',
+    attendeeIds: ['user-4'], // Alex is attending
   },
   {
     id: '5',
@@ -96,6 +104,7 @@ export const sampleEvents: Event[] = [
     venue: 'Zoom Virtual Event',
     category: 'webinar',
     organizer: 'Design Community',
+    company: 'Adobe',
     attendees: 342,
     maxAttendees: 500,
     price: 0,
@@ -105,6 +114,7 @@ export const sampleEvents: Event[] = [
     rsvpStatus: 'registered',
     featured: true,
     status: 'approved',
+    attendeeIds: ['user-5'], // Emma is attending
   },
   {
     id: '6',
@@ -117,6 +127,7 @@ export const sampleEvents: Event[] = [
     venue: 'Microsoft Campus',
     category: 'meetup',
     organizer: 'Seattle JS',
+    company: 'Microsoft',
     attendees: 67,
     maxAttendees: 80,
     price: 0,
@@ -126,6 +137,7 @@ export const sampleEvents: Event[] = [
     rsvpStatus: 'not-registered',
     featured: false,
     status: 'approved',
+    attendeeIds: ['user-2'], // Sarah is attending
   },
   {
     id: '7',
@@ -138,6 +150,7 @@ export const sampleEvents: Event[] = [
     venue: 'Salesforce Tower',
     category: 'conference',
     organizer: 'Cloud Native Foundation',
+    company: 'Amazon',
     attendees: 523,
     maxAttendees: 600,
     price: 199,
@@ -147,6 +160,7 @@ export const sampleEvents: Event[] = [
     rsvpStatus: 'not-registered',
     featured: true,
     status: 'approved',
+    attendeeIds: ['user-2', 'user-3'], // Sarah and Mike are attending
   },
   {
     id: '8',
@@ -159,6 +173,7 @@ export const sampleEvents: Event[] = [
     venue: 'MIT Campus',
     category: 'workshop',
     organizer: 'Data Science Institute',
+    company: 'IBM',
     attendees: 45,
     maxAttendees: 50,
     price: 399,
@@ -168,6 +183,7 @@ export const sampleEvents: Event[] = [
     rsvpStatus: 'registered',
     featured: false,
     status: 'approved',
+    attendeeIds: ['user-2'], // Sarah is attending
   },
   {
     id: '9',
@@ -180,6 +196,7 @@ export const sampleEvents: Event[] = [
     venue: 'Virtual Lab Environment',
     category: 'workshop',
     organizer: 'CyberSec Academy',
+    company: 'CrowdStrike',
     attendees: 78,
     maxAttendees: 100,
     price: 149,
@@ -189,6 +206,7 @@ export const sampleEvents: Event[] = [
     rsvpStatus: 'not-registered',
     featured: true,
     status: 'approved',
+    attendeeIds: ['user-4'], // Alex is attending
   },
   {
     id: '10',
@@ -201,6 +219,7 @@ export const sampleEvents: Event[] = [
     venue: 'Google Campus',
     category: 'workshop',
     organizer: 'Product School',
+    company: 'Stripe',
     attendees: 92,
     maxAttendees: 120,
     price: 249,
@@ -210,6 +229,7 @@ export const sampleEvents: Event[] = [
     rsvpStatus: 'waitlist',
     featured: false,
     status: 'approved',
+    attendeeIds: ['user-3', 'user-5'], // Mike and Emma are attending
   },
   {
     id: '11',
@@ -222,6 +242,7 @@ export const sampleEvents: Event[] = [
     venue: 'UCLA Extension',
     category: 'workshop',
     organizer: 'Mobile Dev Community',
+    company: 'Uber',
     attendees: 134,
     maxAttendees: 150,
     price: 179,
@@ -231,6 +252,7 @@ export const sampleEvents: Event[] = [
     rsvpStatus: 'not-registered',
     featured: true,
     status: 'approved',
+    attendeeIds: ['user-2', 'user-4'], // Sarah and Alex are attending
   },
   {
     id: '12',
@@ -243,6 +265,7 @@ export const sampleEvents: Event[] = [
     venue: 'Wall Street Conference Center',
     category: 'conference',
     organizer: 'Fintech Association',
+    company: 'PayPal',
     attendees: 678,
     maxAttendees: 800,
     price: 349,
@@ -252,6 +275,7 @@ export const sampleEvents: Event[] = [
     rsvpStatus: 'registered',
     featured: true,
     status: 'approved',
+    attendeeIds: ['user-3', 'user-4', 'user-5'], // Mike, Alex, Emma are attending
   },
 ];
 
@@ -293,12 +317,19 @@ export function getEventsInDateRange(events: Event[], start: Date, end: Date): E
 export function filterEvents(events: Event[], filters: Partial<{ 
   category: EventCategory; 
   domain: TechDomain;
+  company: string;
   isOnline: boolean; 
   search: string 
 }>): Event[] {
   return events.filter(event => {
     if (filters.category && event.category !== filters.category) return false;
     if (filters.isOnline !== undefined && event.isOnline !== filters.isOnline) return false;
+    
+    // Company filtering
+    if (filters.company) {
+      const companyLower = filters.company.toLowerCase();
+      if (!event.company.toLowerCase().includes(companyLower)) return false;
+    }
     
     // Domain filtering logic
     if (filters.domain) {
@@ -328,6 +359,8 @@ export function filterEvents(events: Event[], filters: Partial<{
       return (
         event.title.toLowerCase().includes(searchLower) ||
         event.description.toLowerCase().includes(searchLower) ||
+        event.company.toLowerCase().includes(searchLower) ||
+        event.organizer.toLowerCase().includes(searchLower) ||
         event.tags.some(tag => tag.toLowerCase().includes(searchLower))
       );
     }
@@ -335,8 +368,14 @@ export function filterEvents(events: Event[], filters: Partial<{
   });
 }
 
+// Get unique companies for filtering
+export function getUniqueCompanies(events: Event[]): string[] {
+  const companies = events.map(event => event.company);
+  return [...new Set(companies)].sort();
+}
+
 // Function to create a new event
-export function createEvent(eventData: Omit<Event, 'id' | 'attendees' | 'rsvpStatus' | 'featured' | 'status'>): Event {
+export function createEvent(eventData: Omit<Event, 'id' | 'attendees' | 'rsvpStatus' | 'featured' | 'status' | 'attendeeIds'>): Event {
   const newEvent: Event = {
     ...eventData,
     id: `user-event-${Date.now()}`,
@@ -344,6 +383,7 @@ export function createEvent(eventData: Omit<Event, 'id' | 'attendees' | 'rsvpSta
     rsvpStatus: 'not-registered',
     featured: false,
     status: 'pending',
+    attendeeIds: [],
   };
   
   userCreatedEvents.push(newEvent);
@@ -374,4 +414,18 @@ export function getAllEvents(): Event[] {
 // Function to get pending events for admin
 export function getPendingEvents(): Event[] {
   return userCreatedEvents.filter(event => event.status === 'pending');
+}
+
+// Function to get attendees of an event who are being followed by current user
+export function getFollowingAttendees(eventId: string, currentUserId: string): string[] {
+  const event = getAllEvents().find(e => e.id === eventId);
+  if (!event || !event.attendeeIds) return [];
+  
+  // Import following function to check relationships
+  const { getFollowing } = require('./following');
+  const followingUsers = getFollowing(currentUserId);
+  const followingIds = followingUsers.map(user => user.id);
+  
+  // Return attendee IDs that are in the following list
+  return event.attendeeIds.filter(attendeeId => followingIds.includes(attendeeId));
 }

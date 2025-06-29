@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Event, TechDomain } from '@/types/event';
-import { sampleEvents, filterEvents } from '@/lib/events';
+import { getAllEvents, filterEvents } from '@/lib/events';
 import { Header } from '@/components/layout/header';
 import { CalendarView } from '@/components/calendar/calendar-view';
 import { EventFilters } from '@/components/event/event-filters';
@@ -25,13 +25,15 @@ export default function CalendarPage() {
     search: string;
     category?: any;
     domain?: TechDomain;
+    company?: string;
     isOnline?: boolean;
   }>({
     search: '',
   });
 
-  // Get URL parameters for domain and view
+  // Get URL parameters for domain, company, and view
   const urlDomain = searchParams.get('domain') as TechDomain | null;
+  const urlCompany = searchParams.get('company') || null;
   const urlView = searchParams.get('view') || 'calendar';
 
   // Set initial tab value based on URL parameter
@@ -39,16 +41,22 @@ export default function CalendarPage() {
 
   // Apply URL parameters on component mount
   useEffect(() => {
+    const newFilters: typeof filters = { search: '' };
+    
     if (urlDomain) {
-      setFilters(prev => ({
-        ...prev,
-        domain: urlDomain,
-      }));
+      newFilters.domain = urlDomain;
     }
+    
+    if (urlCompany) {
+      newFilters.company = decodeURIComponent(urlCompany);
+    }
+    
+    setFilters(newFilters);
+    
     if (urlView) {
       setActiveTab(urlView);
     }
-  }, [urlDomain, urlView]);
+  }, [urlDomain, urlCompany, urlView]);
 
   // Combine header search with filter search
   const combinedFilters = useMemo(() => ({
@@ -56,9 +64,14 @@ export default function CalendarPage() {
     search: headerSearch || filters.search,
   }), [filters, headerSearch]);
 
+  // Get all events (including approved user-created events)
+  const allEvents = useMemo(() => {
+    return getAllEvents();
+  }, []);
+
   const filteredEvents = useMemo(() => {
-    return filterEvents(sampleEvents, combinedFilters);
-  }, [combinedFilters]);
+    return filterEvents(allEvents, combinedFilters);
+  }, [allEvents, combinedFilters]);
 
   const handleEventSelect = (event: Event) => {
     setSelectedEvent(event);
@@ -84,7 +97,7 @@ export default function CalendarPage() {
               Events
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Browse and discover tech events in an organized view. Filter by domain and type, search for specific topics, and never miss an important event.
+              Browse and discover tech events in an organized view. Filter by domain, company, and type, search for specific topics, and never miss an important event.
             </p>
           </div>
 

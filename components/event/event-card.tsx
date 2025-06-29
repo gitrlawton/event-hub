@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { WhosGoing } from '@/components/event/whos-going';
 import { 
   Calendar, 
   Clock, 
@@ -15,20 +16,27 @@ import {
   Star,
   ExternalLink,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Building2
 } from 'lucide-react';
 import { eventCategories } from '@/lib/events';
+import { useRouter } from 'next/navigation';
 
 interface EventCardProps {
   event: Event;
   compact?: boolean;
   onRSVP?: (eventId: string) => void;
+  currentUserId?: string;
 }
 
-export function EventCard({ event, compact = false, onRSVP }: EventCardProps) {
+// Mock current user ID - in a real app, this would come from authentication context
+const DEFAULT_CURRENT_USER_ID = 'user-1';
+
+export function EventCard({ event, compact = false, onRSVP, currentUserId = DEFAULT_CURRENT_USER_ID }: EventCardProps) {
   const category = eventCategories.find(cat => cat.value === event.category);
   const isPending = event.status === 'pending';
   const isApproved = event.status === 'approved';
+  const router = useRouter();
   
   const getRSVPButton = () => {
     switch (event.rsvpStatus) {
@@ -50,6 +58,18 @@ export function EventCard({ event, compact = false, onRSVP }: EventCardProps) {
     }
   };
 
+  const handleOrganizerClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent event card click
+    const encodedName = encodeURIComponent(event.organizer);
+    router.push(`/user/${encodedName}`);
+  };
+
+  const handleCompanyClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent event card click
+    const encodedCompany = encodeURIComponent(event.company);
+    router.push(`/calendar?company=${encodedCompany}&view=grid`);
+  };
+
   if (compact) {
     return (
       <Card className={`hover:shadow-md transition-shadow cursor-pointer ${isPending ? 'opacity-60' : ''}`}>
@@ -66,6 +86,18 @@ export function EventCard({ event, compact = false, onRSVP }: EventCardProps) {
                   </Badge>
                 )}
               </div>
+              
+              {/* Company - Right beneath title - Clickable */}
+              <div 
+                className="flex items-center gap-1 mb-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1 py-0.5 -mx-1 transition-colors"
+                onClick={handleCompanyClick}
+              >
+                <Building2 className="h-3 w-3 text-blue-500" />
+                <span className="text-xs text-blue-600 dark:text-blue-400 font-medium hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                  {event.company}
+                </span>
+              </div>
+              
               <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
                 <Clock className="h-3 w-3" />
                 {event.startTime}
@@ -77,6 +109,11 @@ export function EventCard({ event, compact = false, onRSVP }: EventCardProps) {
                 {event.featured && (
                   <Star className="h-3 w-3 text-yellow-500 fill-current" />
                 )}
+              </div>
+              
+              {/* Who's Going - Compact Version */}
+              <div className="mt-2">
+                <WhosGoing event={event} currentUserId={currentUserId} compact />
               </div>
             </div>
           </div>
@@ -132,9 +169,24 @@ export function EventCard({ event, compact = false, onRSVP }: EventCardProps) {
 
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-4">
-          <h3 className="text-xl font-semibold leading-tight group-hover:text-blue-600 transition-colors">
-            {event.title}
-          </h3>
+          <div className="flex-1">
+            <h3 className="text-xl font-semibold leading-tight group-hover:text-blue-600 transition-colors mb-2">
+              {event.title}
+            </h3>
+            
+            {/* Company - Right beneath title - Clickable */}
+            <div 
+              className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 mb-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2 py-1 -mx-2 transition-colors"
+              onClick={handleCompanyClick}
+            >
+              <Building2 className="h-4 w-4 text-blue-500" />
+              <span className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                {event.company}
+              </span>
+              <ExternalLink className="h-3 w-3 text-gray-400 ml-auto" />
+            </div>
+          </div>
+          
           <div className="text-right text-sm text-gray-500 flex-shrink-0">
             {event.price === 0 ? (
               <span className="text-green-600 font-medium">Free</span>
@@ -170,6 +222,11 @@ export function EventCard({ event, compact = false, onRSVP }: EventCardProps) {
           </div>
         </div>
 
+        {/* Who's Going Section */}
+        {!isPending && (
+          <WhosGoing event={event} currentUserId={currentUserId} compact />
+        )}
+
         {/* Tags */}
         <div className="flex flex-wrap gap-2">
           {event.tags.map(tag => (
@@ -179,18 +236,24 @@ export function EventCard({ event, compact = false, onRSVP }: EventCardProps) {
           ))}
         </div>
 
-        {/* Organizer */}
-        <div className="flex items-center gap-3 pt-2 border-t border-gray-100">
+        {/* Organizer - Now clickable */}
+        <div 
+          className="flex items-center gap-3 pt-2 border-t border-gray-100 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg p-2 -m-2 transition-colors"
+          onClick={handleOrganizerClick}
+        >
           <Avatar className="h-8 w-8">
             <AvatarImage src="" />
             <AvatarFallback className="text-xs bg-blue-100 text-blue-600">
               {event.organizer.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <div>
-            <p className="text-sm font-medium">{event.organizer}</p>
-            <p className="text-xs text-gray-500">Event Organizer</p>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+              {event.organizer}
+            </p>
+            <p className="text-xs text-gray-500">Event Organizer • Click to view profile</p>
           </div>
+          <ExternalLink className="h-4 w-4 text-gray-400" />
         </div>
 
         {/* Action Buttons - Only show for approved events */}
