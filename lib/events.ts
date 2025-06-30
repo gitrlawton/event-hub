@@ -1,4 +1,6 @@
 import { Event, EventCategory, TechDomain } from '@/types/event';
+import { updateUserStatsOnEventCreation } from '@/lib/engagement';
+import { getUserByName } from '@/lib/users';
 
 export const sampleEvents: Event[] = [
   {
@@ -374,8 +376,10 @@ export function getUniqueCompanies(events: Event[]): string[] {
   return [...new Set(companies)].sort();
 }
 
-// Function to create a new event
-export function createEvent(eventData: Omit<Event, 'id' | 'attendees' | 'rsvpStatus' | 'featured' | 'status' | 'attendeeIds'>): Event {
+// Function to create a new event (no engagement rewards until approval)
+export function createEvent(eventData: Omit<Event, 'id' | 'attendees' | 'rsvpStatus' | 'featured' | 'status' | 'attendeeIds'>): {
+  event: Event;
+} {
   const newEvent: Event = {
     ...eventData,
     id: `user-event-${Date.now()}`,
@@ -387,7 +391,8 @@ export function createEvent(eventData: Omit<Event, 'id' | 'attendees' | 'rsvpSta
   };
   
   userCreatedEvents.push(newEvent);
-  return newEvent;
+  
+  return { event: newEvent };
 }
 
 // Function to get user's created events
@@ -395,15 +400,50 @@ export function getUserCreatedEvents(): Event[] {
   return userCreatedEvents;
 }
 
-// Function to approve an event (adds it to main events list but keeps it in user's created list)
-export function approveEvent(eventId: string): void {
+// Function to approve an event (adds it to main events list and triggers engagement rewards)
+export function approveEvent(eventId: string): {
+  engagementUpdate: {
+    xpGained: number;
+    newBadges: string[];
+    rankUp: { rankUp: boolean; oldRank: string; newRank: string };
+    streakExtended: boolean;
+    xpBreakdown: string[];
+  } | null;
+} {
   const event = userCreatedEvents.find(event => event.id === eventId);
-  if (event) {
-    // Update the status to approved
-    event.status = 'approved';
-    // Add to main events list for public visibility
-    sampleEvents.push({ ...event });
+  if (!event) {
+    return { engagementUpdate: null };
   }
+
+  // Update the status to approved
+  event.status = 'approved';
+  // Add to main events list for public visibility
+  sampleEvents.push({ ...event });
+
+  // Calculate engagement updates now that the event is approved
+  let engagementUpdate = null;
+  const user = getUserByName(event.organizer);
+  if (user) {
+    // Get user's existing approved events
+    const userApprovedEvents = userCreatedEvents.filter(e => 
+      e.organizer === event.organizer && e.status === 'approved'
+    );
+    
+    // Calculate engagement updates
+    const updateResult = updateUserStatsOnEventCreation(user, event, userApprovedEvents);
+    engagementUpdate = {
+      xpGained: updateResult.xpGained,
+      newBadges: updateResult.newBadges,
+      rankUp: updateResult.rankUp,
+      streakExtended: updateResult.streakExtended,
+      xpBreakdown: updateResult.xpBreakdown,
+    };
+
+    // Update user object (in a real app, this would update the database)
+    Object.assign(user, updateResult.updatedUser);
+  }
+
+  return { engagementUpdate };
 }
 
 // Function to get all publicly visible events (only approved events)

@@ -22,6 +22,14 @@ export const mockUsers: User[] = [
     totalConnections: 156,
     interests: ['React', 'AI/ML', 'Cloud Computing', 'Startups', 'Product Management'],
     verified: true,
+    
+    // Engagement System Fields
+    xp: 40,
+    rank: 'Connector',
+    badges: ['first-event'],
+    eventsPosted: 3,
+    streakCount: 2,
+    lastPostDate: new Date('2025-01-10'),
   },
   {
     id: 'user-2',
@@ -42,6 +50,14 @@ export const mockUsers: User[] = [
     interests: ['Machine Learning', 'TensorFlow', 'AI Research', 'Data Science', 'Python'],
     verified: true,
     joinDate: new Date('2022-03-10'),
+    
+    // Engagement System Fields
+    xp: 115,
+    rank: 'Community Builder',
+    badges: ['first-event', 'event-cadence'],
+    eventsPosted: 8,
+    streakCount: 5,
+    lastPostDate: new Date('2025-01-12'),
   },
   {
     id: 'user-3',
@@ -62,6 +78,14 @@ export const mockUsers: User[] = [
     interests: ['Networking', 'Community Building', 'Startups', 'Real Estate Tech', 'Event Planning'],
     verified: true,
     joinDate: new Date('2021-08-22'),
+    
+    // Engagement System Fields
+    xp: 185,
+    rank: 'Event Champion',
+    badges: ['first-event', 'event-cadence', 'super-host'],
+    eventsPosted: 15,
+    streakCount: 8,
+    lastPostDate: new Date('2025-01-11'),
   },
   {
     id: 'user-4',
@@ -82,6 +106,14 @@ export const mockUsers: User[] = [
     interests: ['Blockchain', 'Cryptocurrency', 'DeFi', 'Smart Contracts', 'Web3'],
     verified: true,
     joinDate: new Date('2022-11-05'),
+    
+    // Engagement System Fields
+    xp: 65,
+    rank: 'Connector',
+    badges: ['first-event', 'event-cadence'],
+    eventsPosted: 6,
+    streakCount: 3,
+    lastPostDate: new Date('2025-01-09'),
   },
   {
     id: 'user-5',
@@ -102,6 +134,14 @@ export const mockUsers: User[] = [
     interests: ['UX Design', 'User Research', 'Design Systems', 'Prototyping', 'Accessibility'],
     verified: true,
     joinDate: new Date('2020-06-18'),
+    
+    // Engagement System Fields
+    xp: 135,
+    rank: 'Community Builder',
+    badges: ['first-event', 'event-cadence', 'super-host'],
+    eventsPosted: 12,
+    streakCount: 4,
+    lastPostDate: new Date('2025-01-08'),
   },
 ];
 

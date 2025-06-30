@@ -3,8 +3,11 @@
 import { useState, useEffect } from 'react';
 import { Event } from '@/types/event';
 import { getPendingEvents, approveEvent } from '@/lib/events';
+import { getBadgeInfo } from '@/lib/engagement';
+import { triggerEngagementToasts } from '@/lib/toast-notifications';
+import { getUserByName } from '@/lib/users';
 import { Header } from '@/components/layout/header';
-import { EventCard } from '@/components/event/event-card';
+import { EventReviewModal } from '@/components/admin/event-review-modal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -15,26 +18,70 @@ import {
   XCircle,
   Clock,
   AlertCircle,
+  Trophy,
+  Star,
+  Zap,
+  Flame,
+  Eye,
 } from 'lucide-react';
 
 export default function AdminPage() {
   const [pendingEvents, setPendingEvents] = useState<Event[]>([]);
   const [approvedCount, setApprovedCount] = useState(0);
   const [message, setMessage] = useState('');
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     // Get pending events
     setPendingEvents(getPendingEvents());
   }, []);
 
-  const handleApproveEvent = (eventId: string) => {
-    approveEvent(eventId);
+  const handleEventSelect = (event: Event) => {
+    setSelectedEvent(event);
+    setModalOpen(true);
+  };
+
+  const handleApproveEvent = (eventId: string, editedChanges?: Partial<Event>) => {
+    // If there are edited changes, apply them to the event first
+    if (editedChanges) {
+      const eventIndex = pendingEvents.findIndex(e => e.id === eventId);
+      if (eventIndex !== -1) {
+        const updatedEvent = { ...pendingEvents[eventIndex], ...editedChanges };
+        const updatedEvents = [...pendingEvents];
+        updatedEvents[eventIndex] = updatedEvent;
+        setPendingEvents(updatedEvents);
+      }
+    }
+
+    const result = approveEvent(eventId);
     setPendingEvents(prev => prev.filter(event => event.id !== eventId));
     setApprovedCount(prev => prev + 1);
     setMessage('Event approved successfully! It will now appear in the main calendar and remain in the user\'s created events list.');
     
+    // Trigger engagement rewards and community notifications
+    if (result.engagementUpdate) {
+      const event = pendingEvents.find(e => e.id === eventId);
+      if (event) {
+        const user = getUserByName(event.organizer);
+        if (user) {
+          triggerEngagementToasts(
+            event.organizer,
+            user.id,
+            result.engagementUpdate,
+            { xp: user.xp, streakCount: user.streakCount }
+          );
+        }
+      }
+    }
+    
     // Clear message after 3 seconds
     setTimeout(() => setMessage(''), 3000);
+    
+    // Close modal if the approved event was being viewed
+    if (selectedEvent && selectedEvent.id === eventId) {
+      setModalOpen(false);
+    }
   };
 
   const handleRejectEvent = (eventId: string) => {
@@ -44,6 +91,11 @@ export default function AdminPage() {
     
     // Clear message after 3 seconds
     setTimeout(() => setMessage(''), 3000);
+    
+    // Close modal if the rejected event was being viewed
+    if (selectedEvent && selectedEvent.id === eventId) {
+      setModalOpen(false);
+    }
   };
 
   return (
@@ -62,7 +114,7 @@ export default function AdminPage() {
             </h1>
           </div>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Review and approve pending event submissions. This is a simulation interface for testing the approval workflow.
+            Review and approve pending event submissions. Click on any event to view and edit details before making your decision.
           </p>
         </div>
 
@@ -129,23 +181,27 @@ export default function AdminPage() {
             ) : (
               <div className="space-y-6">
                 {pendingEvents.map(event => (
-                  <div key={event.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                  <div key={event.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                     <div className="flex items-start gap-6">
                       {/* Event Image */}
                       <img 
                         src={event.imageUrl} 
                         alt={event.title}
-                        className="w-32 h-24 object-cover rounded-lg flex-shrink-0"
+                        className="w-32 h-24 object-cover rounded-lg flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => handleEventSelect(event)}
                       />
                       
                       {/* Event Details */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-4 mb-3">
-                          <div>
-                            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                          <div className="flex-1">
+                            <h3 
+                              className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-1 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                              onClick={() => handleEventSelect(event)}
+                            >
                               {event.title}
                             </h3>
-                            <p className="text-gray-600 dark:text-gray-300 mb-2">
+                            <p className="text-gray-600 dark:text-gray-300 mb-2 line-clamp-2">
                               {event.description}
                             </p>
                             <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
@@ -166,6 +222,7 @@ export default function AdminPage() {
                           <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                             {event.organizer}
                           </span>
+                          <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">at {event.company}</span>
                         </div>
 
                         {/* Tags */}
@@ -180,11 +237,19 @@ export default function AdminPage() {
                         {/* Action Buttons */}
                         <div className="flex gap-3">
                           <Button
+                            onClick={() => handleEventSelect(event)}
+                            variant="outline"
+                            className="text-blue-600 border-blue-200 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-900/50"
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            Review & Edit
+                          </Button>
+                          <Button
                             onClick={() => handleApproveEvent(event.id)}
                             className="bg-green-600 hover:bg-green-700 text-white"
                           >
                             <CheckCircle className="h-4 w-4 mr-2" />
-                            Approve Event
+                            Quick Approve
                           </Button>
                           <Button
                             variant="outline"
@@ -204,6 +269,15 @@ export default function AdminPage() {
           </CardContent>
         </Card>
       </main>
+
+      {/* Event Review Modal */}
+      <EventReviewModal
+        event={selectedEvent}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        onApprove={handleApproveEvent}
+        onReject={handleRejectEvent}
+      />
     </div>
   );
 }

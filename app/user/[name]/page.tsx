@@ -7,6 +7,7 @@ import { Event } from '@/types/event';
 import { getUserByName } from '@/lib/users';
 import { getAllEvents } from '@/lib/events';
 import { isFollowing, followUser, unfollowUser, getFollowersCount, getFollowingCount } from '@/lib/following';
+import { getBadgeInfo, getRankInfo, calculateUserStats, getNextRankInfo } from '@/lib/engagement';
 import { Header } from '@/components/layout/header';
 import { EventCard } from '@/components/event/event-card';
 import { EventDetailModal } from '@/components/event/event-detail-modal';
@@ -16,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
+import { Progress } from '@/components/ui/progress';
 import {
   User as UserIcon,
   Calendar,
@@ -36,6 +38,13 @@ import {
   UserPlus,
   UserMinus,
   MessageCircle,
+  Trophy,
+  Award,
+  Zap,
+  Flame,
+  Crown,
+  Target,
+  Medal,
 } from 'lucide-react';
 
 // Mock current user ID - in a real app, this would come from authentication context
@@ -52,6 +61,16 @@ export default function UserProfilePage() {
   // Decode the name parameter
   const userName = decodeURIComponent(params.name as string);
   const user = getUserByName(userName);
+
+  // Calculate user engagement stats
+  const userStats = useMemo(() => {
+    return user ? calculateUserStats(user) : null;
+  }, [user]);
+
+  // Get next rank progress
+  const nextRankInfo = useMemo(() => {
+    return userStats ? getNextRankInfo(userStats.xp) : null;
+  }, [userStats]);
 
   // Initialize following state
   useMemo(() => {
@@ -126,6 +145,8 @@ export default function UserProfilePage() {
       </div>
     );
   }
+
+  const rankInfo = getRankInfo(userStats?.rank || 'Newbie');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-blue-950">
@@ -205,6 +226,50 @@ export default function UserProfilePage() {
                     </div>
                   </div>
 
+                  {/* Rank and XP Display */}
+                  {userStats && (
+                    <div className="flex items-center gap-4 text-sm mb-4">
+                      <div className="flex items-center gap-2">
+                        {rankInfo && <rankInfo.icon className="h-4 w-4 text-blue-500" />}
+                        <Badge className={`
+                          ${rankInfo?.color === 'purple' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' :
+                            rankInfo?.color === 'yellow' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
+                            rankInfo?.color === 'blue' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                            rankInfo?.color === 'green' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                            rankInfo?.color === 'orange' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' :
+                            'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'}
+                        `}>
+                          {userStats.rank}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-1 text-gray-600 dark:text-gray-300">
+                        <Zap className="h-4 w-4 text-yellow-500" />
+                        <span className="font-medium">{userStats.xp} XP</span>
+                      </div>
+                      {userStats.streakCount > 0 && (
+                        <div className="flex items-center gap-1 text-orange-600 dark:text-orange-400">
+                          <Flame className="h-4 w-4" />
+                          <span className="font-medium">{userStats.streakCount} day streak</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Next Rank Progress */}
+                  {nextRankInfo && (
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between text-sm mb-2">
+                        <span className="text-gray-600 dark:text-gray-300">
+                          Progress to {nextRankInfo.nextRank}
+                        </span>
+                        <span className="text-gray-500 dark:text-gray-400">
+                          {nextRankInfo.xpNeeded} XP needed
+                        </span>
+                      </div>
+                      <Progress value={nextRankInfo.progress} className="h-2" />
+                    </div>
+                  )}
+
                   <div className="flex flex-wrap gap-2">
                     {user.interests.map(interest => (
                       <Badge key={interest} variant="secondary">
@@ -273,6 +338,41 @@ export default function UserProfilePage() {
                   <div className="text-xs text-gray-500 dark:text-gray-400">Following</div>
                 </Card>
               </div>
+
+              {/* My Badges Section */}
+              {userStats && userStats.badges.length > 0 && (
+                <Card className="p-4">
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <Trophy className="h-5 w-5 text-yellow-500" />
+                    My Badges ({userStats.badges.length})
+                  </h3>
+                  <div className="grid grid-cols-1 gap-3">
+                    {userStats.badges.map(badgeId => {
+                      const badge = getBadgeInfo(badgeId);
+                      if (!badge) return null;
+                      
+                      return (
+                        <div
+                          key={badgeId}
+                          className="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg border border-blue-200 dark:border-blue-800"
+                        >
+                          <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full">
+                            <badge.icon className="h-5 w-5 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium text-sm text-gray-900 dark:text-gray-100">
+                              {badge.name}
+                            </div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400">
+                              {badge.description}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </Card>
+              )}
 
               {/* Contact Info */}
               <Card className="p-4">

@@ -18,4 +18,12 @@ export interface User {
   totalConnections: number;
   interests: string[];
   verified: boolean;
+  
+  // Engagement System Fields
+  xp: number;
+  rank: string;
+  badges: string[];
+  eventsPosted: number;
+  streakCount: number;
+  lastPostDate: Date | null;
 }

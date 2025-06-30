@@ -189,7 +189,7 @@ export default function AddEventPage() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Create the event with pending status
+      // Create the event (no engagement rewards until approval)
       const eventData = {
         title: formData.title,
         description: formData.description,
@@ -199,8 +199,8 @@ export default function AddEventPage() {
         location: formData.isOnline ? 'Virtual' : `${formData.city}, ${formData.state}`,
         venue: formData.isOnline ? 'Virtual Event' : formData.venue,
         category: formData.categories[0], // Use first selected category
-        organizer: formData.companyName,
-        company: formData.companyName, // Use company name as the company field
+        organizer: 'John Doe', // In a real app, this would come from auth context
+        company: formData.companyName,
         maxAttendees: parseInt(formData.maxAttendees) || 100,
         price: parseFloat(formData.price) || 0,
         imageUrl: formData.imageUrl || 'https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg',
@@ -208,15 +208,10 @@ export default function AddEventPage() {
         isOnline: formData.isOnline,
       };
 
-      const newEvent = createEvent(eventData);
-      console.log('Created event:', newEvent);
+      const result = createEvent(eventData);
+      console.log('Created event:', result.event);
       
       setSuccess(true);
-      
-      // Redirect to profile page after success
-      setTimeout(() => {
-        router.push('/profile');
-      }, 2000);
     } catch (err) {
       setError('Failed to create event. Please try again.');
     } finally {
@@ -226,6 +221,10 @@ export default function AddEventPage() {
 
   const navigateBack = () => {
     router.back();
+  };
+
+  const handleOkClick = () => {
+    router.push('/profile');
   };
 
   if (success) {
@@ -241,10 +240,23 @@ export default function AddEventPage() {
               Event Submitted Successfully!
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Your event has been submitted for review and will appear in your profile as "Pending". Once approved, it will be visible to all users on the platform.
+              Your event has been submitted for review and will appear in your profile as "Pending". Once approved by our team, it will be visible to all users on the platform and you'll receive engagement rewards for your contribution to the community.
             </p>
-            <Button onClick={() => router.push('/profile')}>
-              View My Events
+
+            <div className="bg-blue-50 dark:bg-blue-900/50 rounded-lg p-4 mb-6">
+              <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                What happens next?
+              </h3>
+              <div className="text-sm text-blue-700 dark:text-blue-300 space-y-2 text-left">
+                <div>• Your event will be reviewed by our moderation team</div>
+                <div>• Once approved, it will appear in the main event calendar</div>
+                <div>• You'll receive XP and potential badge rewards upon approval</div>
+                <div>• The community will be notified of your contribution</div>
+              </div>
+            </div>
+
+            <Button onClick={handleOkClick}>
+              OK
             </Button>
           </Card>
         </div>
