@@ -1,23 +1,34 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { User } from '@/types/user';
-import { Event } from '@/types/event';
-import { getUserByName } from '@/lib/users';
-import { getAllEvents } from '@/lib/events';
-import { isFollowing, followUser, unfollowUser, getFollowersCount, getFollowingCount } from '@/lib/following';
-import { getBadgeInfo, getRankInfo, calculateUserStats, getNextRankInfo } from '@/lib/engagement';
-import { Header } from '@/components/layout/header';
-import { EventCard } from '@/components/event/event-card';
-import { EventDetailModal } from '@/components/event/event-detail-modal';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
-import { Progress } from '@/components/ui/progress';
+import { useState, useMemo } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { User } from "@/types/user";
+import { Event } from "@/types/event";
+import { getUserByName } from "@/lib/users";
+import { getAllEvents } from "@/lib/events";
+import {
+  isFollowing,
+  followUser,
+  unfollowUser,
+  getFollowersCount,
+  getFollowingCount,
+} from "@/lib/following";
+import {
+  getBadgeInfo,
+  getRankInfo,
+  calculateUserStats,
+  getNextRankInfo,
+} from "@/lib/engagement";
+import { Header } from "@/components/layout/header";
+import { EventCard } from "@/components/event/event-card";
+import { EventDetailModal } from "@/components/event/event-detail-modal";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+
 import {
   User as UserIcon,
   Calendar,
@@ -45,17 +56,17 @@ import {
   Crown,
   Target,
   Medal,
-} from 'lucide-react';
+} from "lucide-react";
 
 // Mock current user ID - in a real app, this would come from authentication context
-const CURRENT_USER_ID = 'user-1';
+const CURRENT_USER_ID = "user-1";
 
 export default function UserProfilePage() {
   const params = useParams();
   const router = useRouter();
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('created');
+  const [activeTab, setActiveTab] = useState("created");
   const [isFollowingUser, setIsFollowingUser] = useState(false);
 
   // Decode the name parameter
@@ -86,12 +97,16 @@ export default function UserProfilePage() {
 
   // Filter events created by this user
   const userCreatedEvents = useMemo(() => {
-    return allEvents.filter(event => event.organizer === userName && event.status === 'approved');
+    return allEvents.filter(
+      (event) => event.organizer === userName && event.status === "approved"
+    );
   }, [allEvents, userName]);
 
   // Mock attended events (in a real app, this would come from user's registration data)
   const userAttendedEvents = useMemo(() => {
-    return allEvents.filter(event => event.rsvpStatus === 'registered').slice(0, 6);
+    return allEvents
+      .filter((event) => event.rsvpStatus === "registered")
+      .slice(0, 6);
   }, [allEvents]);
 
   // Get follower and following counts
@@ -104,7 +119,7 @@ export default function UserProfilePage() {
   };
 
   const handleRSVP = (eventId: string) => {
-    console.log('RSVP to event:', eventId);
+    console.log("RSVP to event:", eventId);
   };
 
   const handleFollowToggle = () => {
@@ -146,7 +161,7 @@ export default function UserProfilePage() {
     );
   }
 
-  const rankInfo = getRankInfo(userStats?.rank || 'Newbie');
+  const rankInfo = getRankInfo(userStats?.rank || "Newbie");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-blue-950">
@@ -176,7 +191,10 @@ export default function UserProfilePage() {
                   <Avatar className="h-32 w-32">
                     <AvatarImage src={user.avatar} />
                     <AvatarFallback className="text-2xl bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
-                      {user.name.split(' ').map(n => n[0]).join('')}
+                      {user.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
                     </AvatarFallback>
                   </Avatar>
                   {user.verified && (
@@ -199,7 +217,7 @@ export default function UserProfilePage() {
                       </Badge>
                     )}
                   </div>
-                  
+
                   <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300 mb-3">
                     <div className="flex items-center gap-1">
                       <Briefcase className="h-4 w-4" />
@@ -222,7 +240,11 @@ export default function UserProfilePage() {
                     </div>
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
-                      Joined {user.joinDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                      Joined{" "}
+                      {user.joinDate.toLocaleDateString("en-US", {
+                        month: "long",
+                        year: "numeric",
+                      })}
                     </div>
                   </div>
 
@@ -230,15 +252,26 @@ export default function UserProfilePage() {
                   {userStats && (
                     <div className="flex items-center gap-4 text-sm mb-4">
                       <div className="flex items-center gap-2">
-                        {rankInfo && <rankInfo.icon className="h-4 w-4 text-blue-500" />}
-                        <Badge className={`
-                          ${rankInfo?.color === 'purple' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' :
-                            rankInfo?.color === 'yellow' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
-                            rankInfo?.color === 'blue' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
-                            rankInfo?.color === 'green' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                            rankInfo?.color === 'orange' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' :
-                            'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'}
-                        `}>
+                        {rankInfo && (
+                          <rankInfo.icon className="h-4 w-4 text-blue-500" />
+                        )}
+                        <Badge
+                          className={`
+                          ${
+                            rankInfo?.color === "purple"
+                              ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+                              : rankInfo?.color === "yellow"
+                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                                : rankInfo?.color === "blue"
+                                  ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                  : rankInfo?.color === "green"
+                                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                    : rankInfo?.color === "orange"
+                                      ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+                                      : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                          }
+                        `}
+                        >
                           {userStats.rank}
                         </Badge>
                       </div>
@@ -249,7 +282,9 @@ export default function UserProfilePage() {
                       {userStats.streakCount > 0 && (
                         <div className="flex items-center gap-1 text-orange-600 dark:text-orange-400">
                           <Flame className="h-4 w-4" />
-                          <span className="font-medium">{userStats.streakCount} day streak</span>
+                          <span className="font-medium">
+                            {userStats.streakCount} day streak
+                          </span>
                         </div>
                       )}
                     </div>
@@ -266,12 +301,11 @@ export default function UserProfilePage() {
                           {nextRankInfo.xpNeeded} XP needed
                         </span>
                       </div>
-                      <Progress value={nextRankInfo.progress} className="h-2" />
                     </div>
                   )}
 
                   <div className="flex flex-wrap gap-2">
-                    {user.interests.map(interest => (
+                    {user.interests.map((interest) => (
                       <Badge key={interest} variant="secondary">
                         {interest}
                       </Badge>
@@ -282,9 +316,13 @@ export default function UserProfilePage() {
 
               {/* Action Buttons */}
               <div className="flex gap-3 mt-6">
-                <Button 
+                <Button
                   onClick={handleFollowToggle}
-                  className={isFollowingUser ? 'bg-gray-600 hover:bg-gray-700' : 'bg-blue-600 hover:bg-blue-700'}
+                  className={
+                    isFollowingUser
+                      ? "bg-gray-600 hover:bg-gray-700"
+                      : "bg-blue-600 hover:bg-blue-700"
+                  }
                 >
                   {isFollowingUser ? (
                     <>
@@ -317,25 +355,33 @@ export default function UserProfilePage() {
                   <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                     {user.eventsCreated}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Events Created</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Events Created
+                  </div>
                 </Card>
                 <Card className="p-4 text-center">
                   <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                     {user.eventsAttended}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Events Attended</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Events Attended
+                  </div>
                 </Card>
                 <Card className="p-4 text-center">
                   <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                     {followersCount}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Followers</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Followers
+                  </div>
                 </Card>
                 <Card className="p-4 text-center">
                   <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                     {followingCount}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Following</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Following
+                  </div>
                 </Card>
               </div>
 
@@ -347,10 +393,10 @@ export default function UserProfilePage() {
                     My Badges ({userStats.badges.length})
                   </h3>
                   <div className="grid grid-cols-1 gap-3">
-                    {userStats.badges.map(badgeId => {
+                    {userStats.badges.map((badgeId) => {
                       const badge = getBadgeInfo(badgeId);
                       if (!badge) return null;
-                      
+
                       return (
                         <div
                           key={badgeId}
@@ -391,7 +437,10 @@ export default function UserProfilePage() {
                   {user.website && (
                     <div className="flex items-center gap-2">
                       <Globe className="h-4 w-4 text-gray-400" />
-                      <a href={user.website} className="text-blue-600 dark:text-blue-400 hover:underline">
+                      <a
+                        href={user.website}
+                        className="text-blue-600 dark:text-blue-400 hover:underline"
+                      >
                         {user.website}
                       </a>
                     </div>
@@ -423,7 +472,11 @@ export default function UserProfilePage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:grid-cols-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
             <TabsTrigger value="created" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
@@ -442,8 +495,11 @@ export default function UserProfilePage() {
               </h2>
               {userCreatedEvents.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {userCreatedEvents.map(event => (
-                    <div key={event.id} onClick={() => handleEventSelect(event)}>
+                  {userCreatedEvents.map((event) => (
+                    <div
+                      key={event.id}
+                      onClick={() => handleEventSelect(event)}
+                    >
                       <EventCard event={event} onRSVP={handleRSVP} />
                     </div>
                   ))}
@@ -469,8 +525,11 @@ export default function UserProfilePage() {
               </h2>
               {userAttendedEvents.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {userAttendedEvents.map(event => (
-                    <div key={event.id} onClick={() => handleEventSelect(event)}>
+                  {userAttendedEvents.map((event) => (
+                    <div
+                      key={event.id}
+                      onClick={() => handleEventSelect(event)}
+                    >
                       <EventCard event={event} onRSVP={handleRSVP} />
                     </div>
                   ))}
