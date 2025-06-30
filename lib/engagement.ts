@@ -1,56 +1,56 @@
-import { User } from '@/types/user';
-import { Event, EventCategory } from '@/types/event';
-import { 
-  Star, 
-  Calendar, 
-  Trophy, 
-  Award, 
-  Crown, 
+import { User } from "@/types/user";
+import { Event, EventCategory } from "@/types/event";
+import {
+  Star,
+  Calendar,
+  Trophy,
+  Award,
+  Crown,
   Zap,
   Target,
   Medal,
   Shield,
-  Flame
-} from 'lucide-react';
+  Flame,
+} from "lucide-react";
 
 // Badge Definitions
 export const badges = {
-  'first-event': {
-    id: 'first-event',
-    name: 'First Event',
-    description: 'Created your first event',
+  "first-event": {
+    id: "first-event",
+    name: "First Event",
+    description: "Created your first event",
     icon: Star,
     requirement: 1,
     xpReward: 10,
   },
-  'event-cadence': {
-    id: 'event-cadence',
-    name: 'Event Cadence',
-    description: 'Created 5 events',
+  "event-cadence": {
+    id: "event-cadence",
+    name: "Event Cadence",
+    description: "Created 5 events",
     icon: Calendar,
     requirement: 5,
     xpReward: 25,
   },
-  'super-host': {
-    id: 'super-host',
-    name: 'Super Host',
-    description: 'Created 10 events',
+  "super-host": {
+    id: "super-host",
+    name: "Super Host",
+    description: "Created 10 events",
     icon: Trophy,
     requirement: 10,
     xpReward: 50,
   },
-  'marathon-poster': {
-    id: 'marathon-poster',
-    name: 'Marathon Poster',
-    description: 'Created 25 events',
+  "marathon-poster": {
+    id: "marathon-poster",
+    name: "Marathon Poster",
+    description: "Created 25 events",
     icon: Award,
     requirement: 25,
     xpReward: 100,
   },
-  'legendary-curator': {
-    id: 'legendary-curator',
-    name: 'Legendary Curator',
-    description: 'Created 50 events',
+  "legendary-curator": {
+    id: "legendary-curator",
+    name: "Legendary Curator",
+    description: "Created 50 events",
     icon: Crown,
     requirement: 50,
     xpReward: 200,
@@ -59,46 +59,46 @@ export const badges = {
 
 // Rank Tiers
 export const ranks = {
-  'Newbie': {
-    name: 'Newbie',
+  Newbie: {
+    name: "Newbie",
     minXp: 0,
     maxXp: 9,
-    color: 'gray',
+    color: "gray",
     icon: Medal,
   },
-  'Contributor': {
-    name: 'Contributor',
+  Contributor: {
+    name: "Contributor",
     minXp: 10,
     maxXp: 29,
-    color: 'orange',
+    color: "orange",
     icon: Star,
   },
-  'Connector': {
-    name: 'Connector',
+  Connector: {
+    name: "Connector",
     minXp: 30,
     maxXp: 69,
-    color: 'green',
+    color: "green",
     icon: Target,
   },
-  'Community Builder': {
-    name: 'Community Builder',
+  "Community Builder": {
+    name: "Community Builder",
     minXp: 70,
     maxXp: 149,
-    color: 'blue',
+    color: "blue",
     icon: Award,
   },
-  'Event Champion': {
-    name: 'Event Champion',
+  "Event Champion": {
+    name: "Event Champion",
     minXp: 150,
     maxXp: 299,
-    color: 'yellow',
+    color: "yellow",
     icon: Trophy,
   },
-  'Master Curator': {
-    name: 'Master Curator',
+  "Master Curator": {
+    name: "Master Curator",
     minXp: 300,
     maxXp: Infinity,
-    color: 'purple',
+    color: "purple",
     icon: Crown,
   },
 } as const;
@@ -116,7 +116,10 @@ function isToday(date: Date): boolean {
 }
 
 // Calculate streak based on last post date
-export function calculateNewStreak(lastPostDate: Date | null, currentStreakCount: number): number {
+export function calculateNewStreak(
+  lastPostDate: Date | null,
+  currentStreakCount: number
+): number {
   if (!lastPostDate) {
     return 1; // First event
   }
@@ -135,22 +138,25 @@ export function calculateNewStreak(lastPostDate: Date | null, currentStreakCount
 
 // Check if event has high-quality metadata
 function hasHighQualityMetadata(event: Partial<Event>): boolean {
-  const hasImage = event.imageUrl && event.imageUrl.trim() !== '';
-  const hasLocation = event.location && event.location.trim() !== '';
-  const hasTags = event.tags && event.tags.length > 0;
-  
+  const hasImage = Boolean(event.imageUrl && event.imageUrl.trim() !== "");
+  const hasLocation = Boolean(event.location && event.location.trim() !== "");
+  const hasTags = Boolean(event.tags && event.tags.length > 0);
+
   return hasImage && hasLocation && hasTags;
 }
 
 // Check if this is first event in a new category for user
-function isFirstInCategory(category: EventCategory, userCreatedEvents: Event[]): boolean {
-  return !userCreatedEvents.some(event => event.category === category);
+function isFirstInCategory(
+  category: EventCategory,
+  userCreatedEvents: Event[]
+): boolean {
+  return !userCreatedEvents.some((event) => event.category === category);
 }
 
 // Award XP based on event creation
 export function calculateEventXP(
-  event: Partial<Event>, 
-  user: User, 
+  event: Partial<Event>,
+  user: User,
   userCreatedEvents: Event[] = [],
   newStreakCount: number
 ): {
@@ -195,7 +201,8 @@ export function calculateEventXP(
     breakdown.push(`+50 XP for event reaching 50+ RSVPs`);
   }
 
-  const totalXP = baseXP + bonusXP + streakBonusXP + categoryBonusXP + rsvpBonusXP;
+  const totalXP =
+    baseXP + bonusXP + streakBonusXP + categoryBonusXP + rsvpBonusXP;
 
   return {
     baseXP,
@@ -204,20 +211,26 @@ export function calculateEventXP(
     categoryBonusXP,
     rsvpBonusXP,
     totalXP,
-    breakdown
+    breakdown,
   };
 }
 
 // Check for new badges based on events posted
-export function checkForNewBadges(eventsPosted: number, currentBadges: string[]): string[] {
+export function checkForNewBadges(
+  eventsPosted: number,
+  currentBadges: string[]
+): string[] {
   const newBadges: string[] = [];
-  
-  Object.values(badges).forEach(badge => {
-    if (eventsPosted >= badge.requirement && !currentBadges.includes(badge.id)) {
+
+  Object.values(badges).forEach((badge) => {
+    if (
+      eventsPosted >= badge.requirement &&
+      !currentBadges.includes(badge.id)
+    ) {
       newBadges.push(badge.id);
     }
   });
-  
+
   return newBadges;
 }
 
@@ -228,25 +241,28 @@ export function getRankFromXP(xp: number): string {
       return rankName;
     }
   }
-  return 'Newbie';
+  return "Newbie";
 }
 
 // Check if user crossed into new rank tier
-export function checkForRankUp(oldXP: number, newXP: number): { rankUp: boolean; oldRank: string; newRank: string } {
+export function checkForRankUp(
+  oldXP: number,
+  newXP: number
+): { rankUp: boolean; oldRank: string; newRank: string } {
   const oldRank = getRankFromXP(oldXP);
   const newRank = getRankFromXP(newXP);
-  
+
   return {
     rankUp: oldRank !== newRank,
     oldRank,
-    newRank
+    newRank,
   };
 }
 
 // Main function to update user stats when they create an event
 export function updateUserStatsOnEventCreation(
-  user: User, 
-  event: Partial<Event>, 
+  user: User,
+  event: Partial<Event>,
   userCreatedEvents: Event[] = []
 ): {
   updatedUser: Partial<User>;
@@ -257,11 +273,19 @@ export function updateUserStatsOnEventCreation(
   xpBreakdown: string[];
 } {
   // Calculate new streak
-  const newStreakCount = calculateNewStreak(user.lastPostDate, user.streakCount || 0);
+  const newStreakCount = calculateNewStreak(
+    user.lastPostDate,
+    user.streakCount || 0
+  );
   const streakExtended = newStreakCount > (user.streakCount || 0);
 
   // Calculate XP for this event
-  const xpCalculation = calculateEventXP(event, user, userCreatedEvents, newStreakCount);
+  const xpCalculation = calculateEventXP(
+    event,
+    user,
+    userCreatedEvents,
+    newStreakCount
+  );
 
   // Update events posted count
   const newEventsPosted = (user.eventsPosted || 0) + 1;
@@ -315,7 +339,7 @@ export function calculateUserStats(user: User) {
   const rank = user.rank || getRankFromXP(xp);
   const badges = user.badges || [];
   const streakCount = user.streakCount || 0;
-  
+
   return {
     xp,
     rank,
@@ -327,26 +351,33 @@ export function calculateUserStats(user: User) {
 }
 
 // Get next rank info for progress display
-export function getNextRankInfo(currentXP: number): { nextRank: string; xpNeeded: number; progress: number } | null {
+export function getNextRankInfo(
+  currentXP: number
+): { nextRank: string; xpNeeded: number; progress: number } | null {
   const currentRank = getRankFromXP(currentXP);
   const rankEntries = Object.entries(ranks);
-  const currentRankIndex = rankEntries.findIndex(([name]) => name === currentRank);
-  
+  const currentRankIndex = rankEntries.findIndex(
+    ([name]) => name === currentRank
+  );
+
   if (currentRankIndex === -1 || currentRankIndex === rankEntries.length - 1) {
     return null; // Already at max rank
   }
-  
+
   const nextRankEntry = rankEntries[currentRankIndex + 1];
   const nextRank = nextRankEntry[0];
   const nextRankInfo = nextRankEntry[1];
-  
+
   const xpNeeded = nextRankInfo.minXp - currentXP;
   const currentRankInfo = ranks[currentRank as keyof typeof ranks];
-  const progress = ((currentXP - currentRankInfo.minXp) / (nextRankInfo.minXp - currentRankInfo.minXp)) * 100;
-  
+  const progress =
+    ((currentXP - currentRankInfo.minXp) /
+      (nextRankInfo.minXp - currentRankInfo.minXp)) *
+    100;
+
   return {
     nextRank,
     xpNeeded,
-    progress: Math.min(100, Math.max(0, progress))
+    progress: Math.min(100, Math.max(0, progress)),
   };
 }

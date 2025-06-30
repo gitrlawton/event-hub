@@ -14,31 +14,34 @@ export interface Event {
   maxAttendees: number;
   price: number;
   imageUrl: string;
+  originalUrl?: string; // URL to the original event listing
+  foodAvailable?: boolean; // Whether food is available at the event
+  swagAvailable?: boolean; // Whether swag/gifts are available at the event
   tags: string[];
   isOnline: boolean;
-  rsvpStatus: 'not-registered' | 'registered' | 'waitlist';
+  rsvpStatus: "not-registered" | "registered" | "waitlist";
   featured: boolean;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
   attendeeIds: string[]; // Array of user IDs who are attending
 }
 
-export type EventCategory = 
-  | 'conference'
-  | 'workshop'
-  | 'meetup'
-  | 'hackathon'
-  | 'webinar'
-  | 'networking';
+export type EventCategory =
+  | "conference"
+  | "workshop"
+  | "meetup"
+  | "hackathon"
+  | "webinar"
+  | "networking";
 
-export type TechDomain = 
-  | 'software-engineering'
-  | 'data-science'
-  | 'ai-ml'
-  | 'cybersecurity'
-  | 'product-management'
-  | 'biotech'
-  | 'fintech'
-  | 'ui-ux';
+export type TechDomain =
+  | "software-engineering"
+  | "data-science"
+  | "ai-ml"
+  | "cybersecurity"
+  | "product-management"
+  | "biotech"
+  | "fintech"
+  | "ui-ux";
 
 export interface EventFilters {
   category?: EventCategory;
