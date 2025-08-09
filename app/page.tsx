@@ -474,22 +474,6 @@ export default function Home() {
                 Tech Events
               </span>
             </h2>
-            <a
-              href="https://bolt.new/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-transform hover:scale-105"
-            >
-              <img
-                src={
-                  resolvedTheme === "dark"
-                    ? "/white_circle_360x360.png"
-                    : "/black_circle_360x360.png"
-                }
-                alt="Event Hub Logo"
-                className="w-16 h-16 object-contain"
-              />
-            </a>
           </div>
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
             Connect with the tech community through conferences, workshops,
@@ -505,17 +489,17 @@ export default function Home() {
                 onClick={() => handleDisciplineNavigate(discipline.id)}
                 variant="outline"
                 className={`
-                  h-auto p-4 flex flex-col items-center gap-2 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg
+                  h-auto p-4 flex flex-col items-center gap-2 text-center whitespace-normal break-words transition-all duration-300 hover:scale-105 hover:shadow-lg
                   bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-2 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600 group
-                  hover:${discipline.color.split(" ")[1]} hover:text-white
+                  hover:${discipline.color.split(" ")[1]}
                 `}
               >
-                <discipline.icon className="h-6 w-6 text-gray-600 dark:text-gray-300 group-hover:text-white transition-colors" />
+                <discipline.icon className="h-6 w-6 text-gray-600 dark:text-gray-300 transition-colors" />
                 <div>
-                  <div className="font-semibold text-xs text-gray-900 dark:text-gray-100 group-hover:text-white transition-colors">
+                  <div className="font-semibold text-xs text-gray-900 dark:text-gray-100 transition-colors">
                     {discipline.name}
                   </div>
-                  <div className="text-xs mt-1 leading-tight text-gray-500 dark:text-gray-400 group-hover:text-white/80 transition-colors">
+                  <div className="text-xs mt-1 leading-tight text-gray-500 dark:text-gray-400 transition-colors whitespace-normal break-words">
                     {discipline.description}
                   </div>
                 </div>
