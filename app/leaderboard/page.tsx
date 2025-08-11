@@ -308,6 +308,107 @@ export default function LeaderboardPage() {
     return metrics.slice(0, 2); // Show max 2 secondary metrics
   };
 
+  function LeaderboardRowCard({
+    user,
+    position,
+    type,
+  }: {
+    user: User & ReturnType<typeof calculateUserStats>;
+    position: number;
+    type: LeaderboardType;
+  }) {
+    const getRowPrimaryValue = () => {
+      switch (type) {
+        case "streak":
+          return user.streakCount;
+        case "events":
+          return user.eventsPosted;
+        default:
+          return user.xp;
+      }
+    };
+
+    const PrimaryIcon = () => {
+      switch (type) {
+        case "streak":
+          return <Flame className="h-4 w-4 text-orange-500" />;
+        case "events":
+          return <Calendar className="h-4 w-4 text-blue-500" />;
+        default:
+          return <Zap className="h-4 w-4 text-yellow-500" />;
+      }
+    };
+
+    const primaryMetricSuffix =
+      type === "xp" ? "XP" : type === "streak" ? "Days" : "Events";
+
+    return (
+      <Card
+        className={`bg-gray-50 dark:bg-gray-800 shadow-none border-0`}
+        onClick={() => navigateToUserProfile(user.name)}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div
+                className={`flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm ${
+                  position === 1
+                    ? "bg-yellow-400 text-yellow-900"
+                    : position === 2
+                      ? "bg-gray-400 text-gray-900"
+                      : position === 3
+                        ? "bg-orange-400 text-orange-900"
+                        : "bg-gray-200 text-muted-foreground"
+                }`}
+              >
+                {position <= 3 ? <Trophy className="h-4 w-4" /> : position}
+              </div>
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={user.avatar || "/placeholder.svg"} />
+                <AvatarFallback className="bg-gray-200">
+                  {user.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-semibold truncate">{user.name}</h3>
+                <h3 className="font-extralight truncate">
+                  Placeholder at Company
+                </h3>
+              </div>
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <PrimaryIcon />
+                  <span className="font-medium">{getRowPrimaryValue()}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  <span>{user.eventsPosted} events</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Flame className="h-3 w-3" />
+                  <span>{user.streakCount} streak</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-right">
+              <div className="text-2xl font-medium">{getRowPrimaryValue()}</div>
+              <div className="text-xs text-muted-foreground">
+                {primaryMetricSuffix}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-blue-950">
       {/* CSS animations for shine effects */}
@@ -549,7 +650,7 @@ export default function LeaderboardPage() {
                 )}
               </TabsList>
 
-              <TabsContent value={activeTab} className="space-y-4">
+              <TabsContent value={activeTab} className="space-y-3">
                 {sortedUsers.length === 0 ? (
                   <div className="text-center py-12">
                     <Users className="h-16 w-16 mx-auto mb-4 text-gray-300" />
@@ -561,78 +662,14 @@ export default function LeaderboardPage() {
                     </p>
                   </div>
                 ) : (
-                  sortedUsers.map((user, index) => {
-                    const position = index + 1;
-
-                    return (
-                      <div
-                        key={user.id}
-                        className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                        onClick={() => navigateToUserProfile(user.name)}
-                      >
-                        <div className="flex items-center justify-center w-8 h-8">
-                          {position <= 3 ? (
-                            getPositionIcon(position)
-                          ) : (
-                            <span className="text-sm font-medium text-gray-500">
-                              #{position}
-                            </span>
-                          )}
-                        </div>
-
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={user.avatar} />
-                          <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
-                            {user.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-medium text-gray-900 dark:text-gray-100">
-                              {user.name}
-                            </h4>
-                            {user.verified && (
-                              <CheckCircle className="h-4 w-4 text-blue-500" />
-                            )}
-                          </div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {user.role} at {user.company}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-4 text-sm">
-                          <Badge className={getRankColor(user.rank)}>
-                            {getRankIcon(user.rank)}
-                            <span className="ml-1">{user.rank}</span>
-                          </Badge>
-
-                          {/* Primary Metric */}
-                          <div className="font-medium text-lg">
-                            {getPrimaryMetric(user)}
-                          </div>
-
-                          {/* Secondary Metrics */}
-                          <div className="hidden md:flex items-center gap-3">
-                            {getSecondaryMetrics(user).map((metric, idx) => (
-                              <div
-                                key={idx}
-                                className="flex items-center gap-1"
-                              >
-                                <metric.icon
-                                  className={`h-4 w-4 ${metric.color}`}
-                                />
-                                <span>{metric.value}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
+                  sortedUsers.map((user, index) => (
+                    <LeaderboardRowCard
+                      key={user.id}
+                      user={user}
+                      position={index + 1}
+                      type={activeTab}
+                    />
+                  ))
                 )}
               </TabsContent>
             </Tabs>
