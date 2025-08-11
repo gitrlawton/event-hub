@@ -29,14 +29,10 @@ import {
   BarChart3,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import {
-  getRankInfo,
-  getBadgeInfo,
-  calculateUserStats,
-} from "@/lib/engagement";
+import { getRankInfo, calculateUserStats } from "@/lib/engagement";
 
 type TimeFilter = "daily" | "weekly" | "monthly" | "all-time";
-type LeaderboardType = "xp" | "streak" | "events" | "badges";
+type LeaderboardType = "xp" | "streak" | "events";
 
 export default function LeaderboardPage() {
   const [activeTab, setActiveTab] = useState<LeaderboardType>("xp");
@@ -93,8 +89,7 @@ export default function LeaderboardPage() {
         return users.sort((a, b) => b.streakCount - a.streakCount);
       case "events":
         return users.sort((a, b) => b.eventsPosted - a.eventsPosted);
-      case "badges":
-        return users.sort((a, b) => b.badges.length - a.badges.length);
+
       default:
         return users;
     }
@@ -166,8 +161,6 @@ export default function LeaderboardPage() {
         return <Flame className="h-4 w-4" />;
       case "events":
         return <Calendar className="h-4 w-4" />;
-      case "badges":
-        return <Award className="h-4 w-4" />;
     }
   };
 
@@ -179,8 +172,6 @@ export default function LeaderboardPage() {
         return "Streak Count";
       case "events":
         return "Events Created";
-      case "badges":
-        return "Badges Earned";
     }
   };
 
@@ -192,7 +183,7 @@ export default function LeaderboardPage() {
           // Enhanced Gold - HSL-based authentic gold colors
           "bg-gradient-to-br from-[hsl(48,100%,95%)] via-[hsl(45,100%,85%)] to-[hsl(42,100%,75%)]",
           "dark:bg-gradient-to-br dark:from-[hsl(45,80%,15%)] dark:via-[hsl(42,70%,25%)] dark:to-[hsl(38,60%,35%)]",
-          "border-2 border-[hsl(45,85%,65%)] dark:border-[hsl(42,70%,45%)]",
+          "border border-[hsl(45,85%,65%)] dark:border-[hsl(42,70%,45%)]",
           "shadow-lg shadow-[hsl(45,100%,50%)]/15",
           "hover:shadow-2xl hover:shadow-[hsl(45,100%,50%)]/30 transition-all duration-500",
         ].join(" ");
@@ -201,7 +192,7 @@ export default function LeaderboardPage() {
           // Enhanced Silver - True metallic silver HSL colors
           "bg-gradient-to-br from-[hsl(210,15%,95%)] via-[hsl(210,10%,85%)] to-[hsl(210,8%,75%)]",
           "dark:bg-gradient-to-br dark:from-[hsl(210,15%,20%)] dark:via-[hsl(210,12%,30%)] dark:to-[hsl(210,10%,40%)]",
-          "border-2 border-[hsl(210,12%,65%)] dark:border-[hsl(210,15%,55%)]",
+          "border border-[hsl(210,12%,65%)] dark:border-[hsl(210,15%,55%)]",
           "shadow-lg shadow-[hsl(210,15%,40%)]/15",
           "hover:shadow-xl hover:shadow-[hsl(210,15%,40%)]/25 transition-all duration-500",
         ].join(" ");
@@ -210,7 +201,7 @@ export default function LeaderboardPage() {
           // Enhanced Bronze - Authentic bronze HSL colors
           "bg-gradient-to-br from-[hsl(30,65%,90%)] via-[hsl(25,70%,80%)] to-[hsl(20,75%,70%)]",
           "dark:bg-gradient-to-br dark:from-[hsl(25,60%,18%)] dark:via-[hsl(20,65%,28%)] dark:to-[hsl(15,70%,38%)]",
-          "border-2 border-[hsl(25,70%,60%)] dark:border-[hsl(20,65%,50%)]",
+          "border border-[hsl(25,70%,60%)] dark:border-[hsl(20,65%,50%)]",
           "shadow-lg shadow-[hsl(25,70%,45%)]/15",
           "hover:shadow-xl hover:shadow-[hsl(25,70%,45%)]/25 transition-all duration-500",
         ].join(" ");
@@ -250,18 +241,16 @@ export default function LeaderboardPage() {
   };
 
   const getShineAnimation = (position: number) => {
-    const shineDelay = position * 1.5; // Stagger the animations more
-
     switch (position) {
       case 1:
         // Gold shine
-        return `shine-overlay shine-gold animate-[shine_5s_ease-in-out_infinite] [animation-delay:${shineDelay}s]`;
+        return `shine-overlay shine-gold animate-[shine_5s_ease-in-out_infinite]`;
       case 2:
         // Silver shine
-        return `shine-overlay shine-silver animate-[shine_5s_ease-in-out_infinite] [animation-delay:${shineDelay}s]`;
+        return `shine-overlay shine-silver animate-[shine_5s_ease-in-out_infinite]`;
       case 3:
         // Bronze shine
-        return `shine-overlay shine-bronze animate-[shine_5s_ease-in-out_infinite] [animation-delay:${shineDelay}s]`;
+        return `shine-overlay shine-bronze animate-[shine_5s_ease-in-out_infinite]`;
       default:
         return "shine-overlay";
     }
@@ -290,8 +279,6 @@ export default function LeaderboardPage() {
         return `${user.streakCount} day${user.streakCount !== 1 ? "s" : ""}`;
       case "events":
         return `${user.eventsPosted} event${user.eventsPosted !== 1 ? "s" : ""}`;
-      case "badges":
-        return `${user.badges.length} badge${user.badges.length !== 1 ? "s" : ""}`;
     }
   };
 
@@ -317,12 +304,7 @@ export default function LeaderboardPage() {
         value: `${user.eventsPosted}`,
         color: "text-blue-500",
       });
-    if (activeTab !== "badges")
-      metrics.push({
-        icon: Award,
-        value: `${user.badges.length}`,
-        color: "text-purple-500",
-      });
+
     return metrics.slice(0, 2); // Show max 2 secondary metrics
   };
 
@@ -421,7 +403,7 @@ export default function LeaderboardPage() {
             </h1>
           </div>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            See how community members rank based on their event creation
+            See how community members rank based on their event curation
             activity and engagement.
           </p>
         </div>
@@ -459,7 +441,7 @@ export default function LeaderboardPage() {
 
               return (
                 <Card
-                  key={user.id}
+                  key={`podium-${position}`}
                   className={`relative overflow-hidden cursor-pointer transition-all duration-300 ${getPodiumCardClasses(position)}`}
                   onClick={() => navigateToUserProfile(user.name)}
                 >
@@ -529,29 +511,6 @@ export default function LeaderboardPage() {
                         </span>
                       </div>
                     )}
-
-                    {/* Badges Preview */}
-                    {user.badges.length > 0 && (
-                      <div className="mt-3 flex justify-center gap-1">
-                        {user.badges.slice(0, 3).map((badgeId) => {
-                          const badge = getBadgeInfo(badgeId);
-                          return (
-                            <div
-                              key={badgeId}
-                              className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center"
-                              title={badge.name}
-                            >
-                              <badge.icon className="h-3 w-3 text-white" />
-                            </div>
-                          );
-                        })}
-                        {user.badges.length > 3 && (
-                          <div className="w-6 h-6 bg-gray-300 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs font-medium">
-                            +{user.badges.length - 3}
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </CardContent>
                 </Card>
               );
@@ -573,19 +532,21 @@ export default function LeaderboardPage() {
               onValueChange={(value) => setActiveTab(value as LeaderboardType)}
               className="space-y-6"
             >
-              <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:grid-cols-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                {(
-                  ["xp", "streak", "events", "badges"] as LeaderboardType[]
-                ).map((tab) => (
-                  <TabsTrigger
-                    key={tab}
-                    value={tab}
-                    className="flex items-center gap-2"
-                  >
-                    {getTabIcon(tab)}
-                    <span className="hidden sm:inline">{getTabLabel(tab)}</span>
-                  </TabsTrigger>
-                ))}
+              <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:grid-cols-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                {(["xp", "streak", "events"] as LeaderboardType[]).map(
+                  (tab) => (
+                    <TabsTrigger
+                      key={tab}
+                      value={tab}
+                      className="flex items-center gap-2"
+                    >
+                      {getTabIcon(tab)}
+                      <span className="hidden sm:inline">
+                        {getTabLabel(tab)}
+                      </span>
+                    </TabsTrigger>
+                  )
+                )}
               </TabsList>
 
               <TabsContent value={activeTab} className="space-y-4">
@@ -668,29 +629,6 @@ export default function LeaderboardPage() {
                               </div>
                             ))}
                           </div>
-
-                          {/* Badges Preview */}
-                          {user.badges.length > 0 && (
-                            <div className="flex gap-1">
-                              {user.badges.slice(0, 2).map((badgeId) => {
-                                const badge = getBadgeInfo(badgeId);
-                                return (
-                                  <div
-                                    key={badgeId}
-                                    className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center"
-                                    title={badge.name}
-                                  >
-                                    <badge.icon className="h-3 w-3 text-white" />
-                                  </div>
-                                );
-                              })}
-                              {user.badges.length > 2 && (
-                                <div className="w-6 h-6 bg-gray-300 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs font-medium">
-                                  +{user.badges.length - 2}
-                                </div>
-                              )}
-                            </div>
-                          )}
                         </div>
                       </div>
                     );
