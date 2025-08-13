@@ -164,6 +164,17 @@ export default function LeaderboardPage() {
     }
   };
 
+  const getColoredTabIcon = (tab: LeaderboardType) => {
+    switch (tab) {
+      case "xp":
+        return <Zap className="h-4 w-4 text-yellow-500" />;
+      case "streak":
+        return <Flame className="h-4 w-4 text-orange-500" />;
+      case "events":
+        return <Calendar className="h-4 w-4 text-blue-500" />;
+    }
+  };
+
   const getTabLabel = (tab: LeaderboardType) => {
     switch (tab) {
       case "xp":
@@ -171,7 +182,18 @@ export default function LeaderboardPage() {
       case "streak":
         return "Streak Count";
       case "events":
-        return "Events Created";
+        return "Events Curated";
+    }
+  };
+
+  const getTopHeading = (tab: LeaderboardType) => {
+    switch (tab) {
+      case "xp":
+        return "Top XP";
+      case "streak":
+        return "Top Streaks";
+      case "events":
+        return "Top Curators";
     }
   };
 
@@ -185,7 +207,7 @@ export default function LeaderboardPage() {
           "dark:bg-gradient-to-br dark:from-[hsl(45,80%,15%)] dark:via-[hsl(42,70%,25%)] dark:to-[hsl(38,60%,35%)]",
           "border border-[hsl(45,85%,65%)] dark:border-[hsl(42,70%,45%)]",
           "shadow-lg shadow-[hsl(45,100%,50%)]/15",
-          "hover:shadow-2xl hover:shadow-[hsl(45,100%,50%)]/30 transition-all duration-500",
+          "hover:shadow-xl hover:shadow-[hsl(45,100%,50%)]/30 transition-all duration-500",
         ].join(" ");
       case 2:
         return [
@@ -295,13 +317,13 @@ export default function LeaderboardPage() {
     if (activeTab !== "streak")
       metrics.push({
         icon: Flame,
-        value: `${user.streakCount}`,
+        value: `${user.streakCount} day streak`,
         color: "text-orange-500",
       });
     if (activeTab !== "events")
       metrics.push({
         icon: Calendar,
-        value: `${user.eventsPosted}`,
+        value: `${user.eventsPosted} events`,
         color: "text-blue-500",
       });
 
@@ -339,7 +361,10 @@ export default function LeaderboardPage() {
       }
     };
 
-    const primaryMetricSuffix =
+    const primaryMetricLabel =
+      type === "xp" ? "XP" : type === "streak" ? "day streak" : "events";
+
+    const primaryMetricRightSuffix =
       type === "xp" ? "XP" : type === "streak" ? "Days" : "Events";
 
     return (
@@ -380,27 +405,30 @@ export default function LeaderboardPage() {
                 <h3 className="font-extralight truncate">
                   Placeholder at Company
                 </h3>
+                {/* <Badge className={`${getRankColor(user.rank)} text-xs`}>
+                  {user.rank}
+                </Badge> */}
               </div>
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <PrimaryIcon />
-                  <span className="font-medium">{getRowPrimaryValue()}</span>
+                  <span className="font-medium">
+                    {getRowPrimaryValue()} {primaryMetricLabel}
+                  </span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  <span>{user.eventsPosted} events</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Flame className="h-3 w-3" />
-                  <span>{user.streakCount} streak</span>
-                </div>
+                {getSecondaryMetrics(user).map((metric, idx) => (
+                  <div key={idx} className="flex items-center gap-1">
+                    <metric.icon className="h-3 w-3" />
+                    <span>{metric.value}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
             <div className="text-right">
               <div className="text-2xl font-medium">{getRowPrimaryValue()}</div>
               <div className="text-xs text-muted-foreground">
-                {primaryMetricSuffix}
+                {primaryMetricRightSuffix}
               </div>
             </div>
           </div>
@@ -532,7 +560,7 @@ export default function LeaderboardPage() {
         {/* Top 3 Podium */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">
-            Top Contributors{" "}
+            {getTopHeading(activeTab)}{" "}
             {timeFilter !== "all-time" &&
               `(${timeFilter.charAt(0).toUpperCase() + timeFilter.slice(1)})`}
           </h2>
@@ -557,7 +585,7 @@ export default function LeaderboardPage() {
                   </div>
 
                   <CardContent className="p-6 text-center">
-                    <div className="flex justify-center mb-4">
+                    <div className="flex justify-center mb-4 invisible">
                       {getPositionIcon(position)}
                     </div>
 
@@ -575,9 +603,6 @@ export default function LeaderboardPage() {
                       <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100">
                         {user.name}
                       </h3>
-                      {user.verified && (
-                        <CheckCircle className="h-4 w-4 text-blue-500" />
-                      )}
                     </div>
 
                     <Badge className={`mb-3 ${getRankColor(user.rank)}`}>
@@ -590,8 +615,8 @@ export default function LeaderboardPage() {
                       {getPrimaryMetric(user)}
                     </div>
 
-                    {/* Secondary Metrics */}
-                    <div className="space-y-1 text-sm">
+                    {/* Secondary Metrics (hidden but space preserved) */}
+                    <div className="space-y-1 text-sm invisible">
                       {getSecondaryMetrics(user).map((metric, idx) => (
                         <div
                           key={idx}
@@ -603,15 +628,13 @@ export default function LeaderboardPage() {
                       ))}
                     </div>
 
-                    {/* Streak Display */}
-                    {user.streakCount > 0 && (
-                      <div className="mt-3 flex items-center justify-center gap-1 text-orange-600 dark:text-orange-400">
-                        <Flame className="h-4 w-4" />
-                        <span className="text-sm font-medium">
-                          {user.streakCount} day streak
-                        </span>
-                      </div>
-                    )}
+                    {/* Streak Display (hidden but space preserved) */}
+                    <div className="mt-3 flex items-center justify-center gap-1 text-orange-600 dark:text-orange-400 invisible">
+                      <Flame className="h-4 w-4" />
+                      <span className="text-sm font-medium">
+                        {user.streakCount} day streak
+                      </span>
+                    </div>
                   </CardContent>
                 </Card>
               );
@@ -641,7 +664,9 @@ export default function LeaderboardPage() {
                       value={tab}
                       className="flex items-center gap-2"
                     >
-                      {getTabIcon(tab)}
+                      {activeTab === tab
+                        ? getColoredTabIcon(tab)
+                        : getTabIcon(tab)}
                       <span className="hidden sm:inline">
                         {getTabLabel(tab)}
                       </span>
