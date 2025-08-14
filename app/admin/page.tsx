@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Event } from '@/types/event';
-import { getPendingEvents, approveEvent } from '@/lib/events';
-import { getBadgeInfo } from '@/lib/engagement';
-import { triggerEngagementToasts } from '@/lib/toast-notifications';
-import { getUserByName } from '@/lib/users';
-import { Header } from '@/components/layout/header';
-import { EventReviewModal } from '@/components/admin/event-review-modal';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useState, useEffect } from "react";
+import { Event } from "@/types/event";
+import { getPendingEvents, approveEvent } from "@/lib/events";
+import { getBadgeInfo } from "@/lib/engagement";
+import { triggerEngagementToasts } from "@/lib/toast-notifications";
+import { getUserByName } from "@/lib/users";
+import { Header } from "@/components/layout/header";
+import { EventReviewModal } from "@/components/admin/event-review-modal";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Shield,
   CheckCircle,
@@ -23,12 +23,12 @@ import {
   Zap,
   Flame,
   Eye,
-} from 'lucide-react';
+} from "lucide-react";
 
 export default function AdminPage() {
   const [pendingEvents, setPendingEvents] = useState<Event[]>([]);
   const [approvedCount, setApprovedCount] = useState(0);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -42,10 +42,13 @@ export default function AdminPage() {
     setModalOpen(true);
   };
 
-  const handleApproveEvent = (eventId: string, editedChanges?: Partial<Event>) => {
+  const handleApproveEvent = (
+    eventId: string,
+    editedChanges?: Partial<Event>
+  ) => {
     // If there are edited changes, apply them to the event first
     if (editedChanges) {
-      const eventIndex = pendingEvents.findIndex(e => e.id === eventId);
+      const eventIndex = pendingEvents.findIndex((e) => e.id === eventId);
       if (eventIndex !== -1) {
         const updatedEvent = { ...pendingEvents[eventIndex], ...editedChanges };
         const updatedEvents = [...pendingEvents];
@@ -55,13 +58,15 @@ export default function AdminPage() {
     }
 
     const result = approveEvent(eventId);
-    setPendingEvents(prev => prev.filter(event => event.id !== eventId));
-    setApprovedCount(prev => prev + 1);
-    setMessage('Event approved successfully! It will now appear in the main calendar and remain in the user\'s created events list.');
-    
+    setPendingEvents((prev) => prev.filter((event) => event.id !== eventId));
+    setApprovedCount((prev) => prev + 1);
+    setMessage(
+      "Event approved successfully! It will now appear in the main calendar and remain in the user's created events list."
+    );
+
     // Trigger engagement rewards and community notifications
     if (result.engagementUpdate) {
-      const event = pendingEvents.find(e => e.id === eventId);
+      const event = pendingEvents.find((e) => e.id === eventId);
       if (event) {
         const user = getUserByName(event.organizer);
         if (user) {
@@ -74,10 +79,10 @@ export default function AdminPage() {
         }
       }
     }
-    
+
     // Clear message after 3 seconds
-    setTimeout(() => setMessage(''), 3000);
-    
+    setTimeout(() => setMessage(""), 3000);
+
     // Close modal if the approved event was being viewed
     if (selectedEvent && selectedEvent.id === eventId) {
       setModalOpen(false);
@@ -86,12 +91,12 @@ export default function AdminPage() {
 
   const handleRejectEvent = (eventId: string) => {
     // In a real app, this would update the event status to 'rejected'
-    setPendingEvents(prev => prev.filter(event => event.id !== eventId));
-    setMessage('Event rejected. The organizer will be notified.');
-    
+    setPendingEvents((prev) => prev.filter((event) => event.id !== eventId));
+    setMessage("Event rejected. The organizer will be notified.");
+
     // Clear message after 3 seconds
-    setTimeout(() => setMessage(''), 3000);
-    
+    setTimeout(() => setMessage(""), 3000);
+
     // Close modal if the rejected event was being viewed
     if (selectedEvent && selectedEvent.id === eventId) {
       setModalOpen(false);
@@ -114,7 +119,8 @@ export default function AdminPage() {
             </h1>
           </div>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Review and approve pending event submissions. Click on any event to view and edit details before making your decision.
+            Review and approve pending event submissions. Click on any event to
+            view and edit details before making your decision.
           </p>
         </div>
 
@@ -126,7 +132,9 @@ export default function AdminPage() {
               <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {pendingEvents.length}
               </div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">Pending Events</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Pending Events
+              </div>
             </CardContent>
           </Card>
           <Card>
@@ -135,7 +143,9 @@ export default function AdminPage() {
               <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {approvedCount}
               </div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">Approved Today</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Approved Today
+              </div>
             </CardContent>
           </Card>
           <Card>
@@ -144,7 +154,9 @@ export default function AdminPage() {
               <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 0
               </div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">Rejected Today</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Rejected Today
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -180,22 +192,25 @@ export default function AdminPage() {
               </div>
             ) : (
               <div className="space-y-6">
-                {pendingEvents.map(event => (
-                  <div key={event.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                {pendingEvents.map((event) => (
+                  <div
+                    key={event.id}
+                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                  >
                     <div className="flex items-start gap-6">
                       {/* Event Image */}
-                      <img 
-                        src={event.imageUrl} 
+                      <img
+                        src={event.imageUrl}
                         alt={event.title}
                         className="w-32 h-24 object-cover rounded-lg flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                         onClick={() => handleEventSelect(event)}
                       />
-                      
+
                       {/* Event Details */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-4 mb-3">
                           <div className="flex-1">
-                            <h3 
+                            <h3
                               className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-1 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                               onClick={() => handleEventSelect(event)}
                             >
@@ -206,7 +221,9 @@ export default function AdminPage() {
                             </p>
                             <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                               <span>{event.date.toLocaleDateString()}</span>
-                              <span>{event.startTime} - {event.endTime}</span>
+                              <span>
+                                {event.startTime} - {event.endTime}
+                              </span>
                               <span>{event.location}</span>
                             </div>
                           </div>
@@ -215,20 +232,28 @@ export default function AdminPage() {
                             Pending
                           </Badge>
                         </div>
-                        
+
                         {/* Organizer Info */}
                         <div className="mb-4">
-                          <span className="text-sm text-gray-500 dark:text-gray-400">Organizer: </span>
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            Organizer:{" "}
+                          </span>
                           <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                             {event.organizer}
                           </span>
-                          <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">at {event.company}</span>
+                          <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
+                            at {event.company}
+                          </span>
                         </div>
 
                         {/* Tags */}
                         <div className="flex flex-wrap gap-2 mb-4">
-                          {event.tags.map(tag => (
-                            <Badge key={tag} variant="outline" className="text-xs">
+                          {event.tags.map((tag) => (
+                            <Badge
+                              key={tag}
+                              variant="outline"
+                              className="text-xs"
+                            >
                               {tag}
                             </Badge>
                           ))}

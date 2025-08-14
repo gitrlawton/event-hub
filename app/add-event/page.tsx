@@ -1,19 +1,31 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Header } from '@/components/layout/header';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Header } from "@/components/layout/header";
 import {
   Calendar,
   Clock,
@@ -39,9 +51,9 @@ import {
   Palette,
   Utensils,
   Gift,
-} from 'lucide-react';
-import { EventCategory, TechDomain } from '@/types/event';
-import { eventCategories, techDomains, createEvent } from '@/lib/events';
+} from "lucide-react";
+import { EventCategory, TechDomain } from "@/types/event";
+import { eventCategories, techDomains, createEvent } from "@/lib/events";
 
 interface EventFormData {
   title: string;
@@ -67,107 +79,113 @@ interface EventFormData {
 }
 
 const domainIcons = {
-  'software-engineering': Code,
-  'data-science': BarChart3,
-  'ai-ml': Brain,
-  'cybersecurity': Shield,
-  'product-management': Target,
-  'biotech': Dna,
-  'fintech': DollarSign,
-  'ui-ux': Palette,
+  "software-engineering": Code,
+  "data-science": BarChart3,
+  "ai-ml": Brain,
+  cybersecurity: Shield,
+  "product-management": Target,
+  biotech: Dna,
+  fintech: DollarSign,
+  "ui-ux": Palette,
 };
 
 export default function AddEventPage() {
   const [formData, setFormData] = useState<EventFormData>({
-    title: '',
-    description: '',
-    date: '',
-    startTime: '',
-    endTime: '',
-    city: '',
-    state: '',
-    country: '',
-    venue: '',
-    companyName: '',
+    title: "",
+    description: "",
+    date: "",
+    startTime: "",
+    endTime: "",
+    city: "",
+    state: "",
+    country: "",
+    venue: "",
+    companyName: "",
     domains: [],
     categories: [],
-    originalUrl: '',
-    price: '0',
-    maxAttendees: '',
-    imageUrl: '',
+    originalUrl: "",
+    price: "0",
+    maxAttendees: "",
+    imageUrl: "",
     foodAvailable: false,
     swagAvailable: false,
     isOnline: false,
     tags: [],
   });
 
-  const [newTag, setNewTag] = useState('');
+  const [newTag, setNewTag] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const router = useRouter();
 
   const handleInputChange = (field: keyof EventFormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    if (error) setError('');
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (error) setError("");
   };
 
   const handleDomainToggle = (domain: TechDomain) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       domains: prev.domains.includes(domain)
-        ? prev.domains.filter(d => d !== domain)
-        : [...prev.domains, domain]
+        ? prev.domains.filter((d) => d !== domain)
+        : [...prev.domains, domain],
     }));
   };
 
   const handleCategoryToggle = (category: EventCategory) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       categories: prev.categories.includes(category)
-        ? prev.categories.filter(c => c !== category)
-        : [...prev.categories, category]
+        ? prev.categories.filter((c) => c !== category)
+        : [...prev.categories, category],
     }));
   };
 
   const addTag = () => {
     if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        tags: [...prev.tags, newTag.trim()]
+        tags: [...prev.tags, newTag.trim()],
       }));
-      setNewTag('');
+      setNewTag("");
     }
   };
 
   const removeTag = (tagToRemove: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
     }));
   };
 
   const validateForm = (): string | null => {
-    if (!formData.title.trim()) return 'Event title is required';
-    if (!formData.description.trim()) return 'Event description is required';
-    if (!formData.date) return 'Event date is required';
-    if (!formData.startTime) return 'Start time is required';
-    if (!formData.endTime) return 'End time is required';
-    if (!formData.companyName.trim()) return 'Company name is required';
-    if (formData.domains.length === 0) return 'At least one domain must be selected';
-    if (formData.categories.length === 0) return 'At least one event type must be selected';
-    if (!formData.originalUrl.trim()) return 'Original listing URL is required';
-    if (!formData.originalUrl.startsWith('http')) return 'Please enter a valid URL';
-    
+    if (!formData.title.trim()) return "Event title is required";
+    if (!formData.description.trim()) return "Event description is required";
+    if (!formData.date) return "Event date is required";
+    if (!formData.startTime) return "Start time is required";
+    if (!formData.endTime) return "End time is required";
+    if (!formData.companyName.trim()) return "Company name is required";
+    if (formData.domains.length === 0)
+      return "At least one domain must be selected";
+    if (formData.categories.length === 0)
+      return "At least one event type must be selected";
+    if (!formData.originalUrl.trim()) return "Original listing URL is required";
+    if (!formData.originalUrl.startsWith("http"))
+      return "Please enter a valid URL";
+
     if (!formData.isOnline) {
-      if (!formData.city.trim()) return 'City is required for in-person events';
-      if (!formData.state.trim()) return 'State is required for in-person events';
-      if (!formData.country.trim()) return 'Country is required for in-person events';
-      if (!formData.venue.trim()) return 'Venue is required for in-person events';
+      if (!formData.city.trim()) return "City is required for in-person events";
+      if (!formData.state.trim())
+        return "State is required for in-person events";
+      if (!formData.country.trim())
+        return "Country is required for in-person events";
+      if (!formData.venue.trim())
+        return "Venue is required for in-person events";
     }
 
     if (formData.maxAttendees && parseInt(formData.maxAttendees) <= 0) {
-      return 'Maximum attendees must be a positive number';
+      return "Maximum attendees must be a positive number";
     }
 
     return null;
@@ -176,7 +194,7 @@ export default function AddEventPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    setError("");
 
     const validationError = validateForm();
     if (validationError) {
@@ -187,8 +205,8 @@ export default function AddEventPage() {
 
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Create the event (no engagement rewards until approval)
       const eventData = {
         title: formData.title,
@@ -196,24 +214,28 @@ export default function AddEventPage() {
         date: new Date(formData.date),
         startTime: formData.startTime,
         endTime: formData.endTime,
-        location: formData.isOnline ? 'Virtual' : `${formData.city}, ${formData.state}`,
-        venue: formData.isOnline ? 'Virtual Event' : formData.venue,
+        location: formData.isOnline
+          ? "Virtual"
+          : `${formData.city}, ${formData.state}`,
+        venue: formData.isOnline ? "Virtual Event" : formData.venue,
         category: formData.categories[0], // Use first selected category
-        organizer: 'John Doe', // In a real app, this would come from auth context
+        organizer: "John Doe", // In a real app, this would come from auth context
         company: formData.companyName,
         maxAttendees: parseInt(formData.maxAttendees) || 100,
         price: parseFloat(formData.price) || 0,
-        imageUrl: formData.imageUrl || 'https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg',
+        imageUrl:
+          formData.imageUrl ||
+          "https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg",
         tags: formData.tags,
         isOnline: formData.isOnline,
       };
 
       const result = createEvent(eventData);
-      console.log('Created event:', result.event);
-      
+      console.log("Created event:", result.event);
+
       setSuccess(true);
     } catch (err) {
-      setError('Failed to create event. Please try again.');
+      setError("Failed to create event. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -224,7 +246,7 @@ export default function AddEventPage() {
   };
 
   const handleOkClick = () => {
-    router.push('/profile');
+    router.push("/profile");
   };
 
   if (success) {
@@ -240,7 +262,10 @@ export default function AddEventPage() {
               Event Submitted Successfully!
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Your event has been submitted for review and will appear in your profile as "Pending". Once approved by our team, it will be visible to all users on the platform and you'll receive engagement rewards for your contribution to the community.
+              Your event has been submitted for review and will appear in your
+              profile as "Pending". Once approved by our team, it will be
+              visible to all users on the platform and you'll receive engagement
+              rewards for your contribution to the community.
             </p>
 
             <div className="bg-blue-50 dark:bg-blue-900/50 rounded-lg p-4 mb-6">
@@ -249,15 +274,17 @@ export default function AddEventPage() {
               </h3>
               <div className="text-sm text-blue-700 dark:text-blue-300 space-y-2 text-left">
                 <div>• Your event will be reviewed by our moderation team</div>
-                <div>• Once approved, it will appear in the main event calendar</div>
-                <div>• You'll receive XP and potential badge rewards upon approval</div>
+                <div>
+                  • Once approved, it will appear in the main event calendar
+                </div>
+                <div>
+                  • You'll receive XP and potential badge rewards upon approval
+                </div>
                 <div>• The community will be notified of your contribution</div>
               </div>
             </div>
 
-            <Button onClick={handleOkClick}>
-              OK
-            </Button>
+            <Button onClick={handleOkClick}>OK</Button>
           </Card>
         </div>
       </div>
@@ -285,13 +312,17 @@ export default function AddEventPage() {
             Add New Event
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Share your amazing tech event with the community. Fill out the details below to get started.
+            Share your amazing tech event with the community. Fill out the
+            details below to get started.
           </p>
         </div>
 
         {/* Error Alert */}
         {error && (
-          <Alert variant="destructive" className="mb-6 border-red-200 dark:border-red-800">
+          <Alert
+            variant="destructive"
+            className="mb-6 border-red-200 dark:border-red-800"
+          >
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
@@ -318,7 +349,7 @@ export default function AddEventPage() {
                   id="title"
                   placeholder="e.g., React Summit 2024"
                   value={formData.title}
-                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  onChange={(e) => handleInputChange("title", e.target.value)}
                   className="h-11"
                   disabled={isLoading}
                   required
@@ -333,7 +364,9 @@ export default function AddEventPage() {
                   id="description"
                   placeholder="Describe your event, what attendees will learn, and why they should attend..."
                   value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
                   rows={4}
                   disabled={isLoading}
                   required
@@ -350,7 +383,9 @@ export default function AddEventPage() {
                     id="companyName"
                     placeholder="e.g., Tech Corp, React Community"
                     value={formData.companyName}
-                    onChange={(e) => handleInputChange('companyName', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("companyName", e.target.value)
+                    }
                     className="pl-10 h-11"
                     disabled={isLoading}
                     required
@@ -369,7 +404,9 @@ export default function AddEventPage() {
                     type="url"
                     placeholder="https://example.com/event"
                     value={formData.originalUrl}
-                    onChange={(e) => handleInputChange('originalUrl', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("originalUrl", e.target.value)
+                    }
                     className="pl-10 h-11"
                     disabled={isLoading}
                     required
@@ -400,7 +437,7 @@ export default function AddEventPage() {
                     id="date"
                     type="date"
                     value={formData.date}
-                    onChange={(e) => handleInputChange('date', e.target.value)}
+                    onChange={(e) => handleInputChange("date", e.target.value)}
                     className="h-11"
                     disabled={isLoading}
                     required
@@ -414,7 +451,9 @@ export default function AddEventPage() {
                     id="startTime"
                     type="time"
                     value={formData.startTime}
-                    onChange={(e) => handleInputChange('startTime', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("startTime", e.target.value)
+                    }
                     className="h-11"
                     disabled={isLoading}
                     required
@@ -428,7 +467,9 @@ export default function AddEventPage() {
                     id="endTime"
                     type="time"
                     value={formData.endTime}
-                    onChange={(e) => handleInputChange('endTime', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("endTime", e.target.value)
+                    }
                     className="h-11"
                     disabled={isLoading}
                     required
@@ -445,16 +486,16 @@ export default function AddEventPage() {
                 <MapPin className="h-5 w-5 text-blue-600" />
                 Location
               </CardTitle>
-              <CardDescription>
-                Where will your event be held?
-              </CardDescription>
+              <CardDescription>Where will your event be held?</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center space-x-2">
                 <Switch
                   id="isOnline"
                   checked={formData.isOnline}
-                  onCheckedChange={(checked) => handleInputChange('isOnline', checked)}
+                  onCheckedChange={(checked) =>
+                    handleInputChange("isOnline", checked)
+                  }
                   disabled={isLoading}
                 />
                 <Label htmlFor="isOnline" className="text-sm font-medium">
@@ -473,7 +514,9 @@ export default function AddEventPage() {
                         id="city"
                         placeholder="San Francisco"
                         value={formData.city}
-                        onChange={(e) => handleInputChange('city', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("city", e.target.value)
+                        }
                         className="h-11"
                         disabled={isLoading}
                         required={!formData.isOnline}
@@ -487,7 +530,9 @@ export default function AddEventPage() {
                         id="state"
                         placeholder="California"
                         value={formData.state}
-                        onChange={(e) => handleInputChange('state', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("state", e.target.value)
+                        }
                         className="h-11"
                         disabled={isLoading}
                         required={!formData.isOnline}
@@ -501,7 +546,9 @@ export default function AddEventPage() {
                         id="country"
                         placeholder="United States"
                         value={formData.country}
-                        onChange={(e) => handleInputChange('country', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("country", e.target.value)
+                        }
                         className="h-11"
                         disabled={isLoading}
                         required={!formData.isOnline}
@@ -517,7 +564,9 @@ export default function AddEventPage() {
                       id="venue"
                       placeholder="e.g., Moscone Center, WeWork, University Campus"
                       value={formData.venue}
-                      onChange={(e) => handleInputChange('venue', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("venue", e.target.value)
+                      }
                       className="h-11"
                       disabled={isLoading}
                       required={!formData.isOnline}
@@ -544,7 +593,7 @@ export default function AddEventPage() {
                 {techDomains.map((domain) => {
                   const IconComponent = domainIcons[domain.value];
                   const isSelected = formData.domains.includes(domain.value);
-                  
+
                   return (
                     <button
                       key={domain.value}
@@ -553,17 +602,22 @@ export default function AddEventPage() {
                       disabled={isLoading}
                       className={`
                         p-4 rounded-lg border-2 transition-all duration-200 text-left
-                        ${isSelected 
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/50' 
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                        ${
+                          isSelected
+                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/50"
+                            : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
                         }
-                        ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md'}
+                        ${isLoading ? "opacity-50 cursor-not-allowed" : "hover:shadow-md"}
                       `}
                     >
                       <div className="flex items-center gap-3">
-                        <IconComponent className={`h-5 w-5 ${isSelected ? 'text-blue-600' : 'text-gray-500'}`} />
+                        <IconComponent
+                          className={`h-5 w-5 ${isSelected ? "text-blue-600" : "text-gray-500"}`}
+                        />
                         <div>
-                          <div className={`font-medium text-sm ${isSelected ? 'text-blue-900 dark:text-blue-100' : 'text-gray-900 dark:text-gray-100'}`}>
+                          <div
+                            className={`font-medium text-sm ${isSelected ? "text-blue-900 dark:text-blue-100" : "text-gray-900 dark:text-gray-100"}`}
+                          >
                             {domain.label}
                           </div>
                         </div>
@@ -589,8 +643,10 @@ export default function AddEventPage() {
             <CardContent>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                 {eventCategories.map((category) => {
-                  const isSelected = formData.categories.includes(category.value);
-                  
+                  const isSelected = formData.categories.includes(
+                    category.value
+                  );
+
                   return (
                     <button
                       key={category.value}
@@ -599,15 +655,20 @@ export default function AddEventPage() {
                       disabled={isLoading}
                       className={`
                         p-3 rounded-lg border-2 transition-all duration-200 text-center
-                        ${isSelected 
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/50' 
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                        ${
+                          isSelected
+                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/50"
+                            : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
                         }
-                        ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md'}
+                        ${isLoading ? "opacity-50 cursor-not-allowed" : "hover:shadow-md"}
                       `}
                     >
-                      <div className={`w-3 h-3 rounded-full mx-auto mb-2 ${category.color}`} />
-                      <div className={`font-medium text-xs ${isSelected ? 'text-blue-900 dark:text-blue-100' : 'text-gray-900 dark:text-gray-100'}`}>
+                      <div
+                        className={`w-3 h-3 rounded-full mx-auto mb-2 ${category.color}`}
+                      />
+                      <div
+                        className={`font-medium text-xs ${isSelected ? "text-blue-900 dark:text-blue-100" : "text-gray-900 dark:text-gray-100"}`}
+                      >
                         {category.label}
                       </div>
                     </button>
@@ -636,30 +697,44 @@ export default function AddEventPage() {
                   <div className="flex items-center space-x-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
                     <Utensils className="h-5 w-5 text-gray-500" />
                     <div className="flex-1">
-                      <Label htmlFor="foodAvailable" className="text-sm font-medium cursor-pointer">
+                      <Label
+                        htmlFor="foodAvailable"
+                        className="text-sm font-medium cursor-pointer"
+                      >
                         Food Available
                       </Label>
-                      <p className="text-xs text-gray-500">Meals, snacks, or refreshments provided</p>
+                      <p className="text-xs text-gray-500">
+                        Meals, snacks, or refreshments provided
+                      </p>
                     </div>
                     <Switch
                       id="foodAvailable"
                       checked={formData.foodAvailable}
-                      onCheckedChange={(checked) => handleInputChange('foodAvailable', checked)}
+                      onCheckedChange={(checked) =>
+                        handleInputChange("foodAvailable", checked)
+                      }
                       disabled={isLoading}
                     />
                   </div>
                   <div className="flex items-center space-x-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
                     <Gift className="h-5 w-5 text-gray-500" />
                     <div className="flex-1">
-                      <Label htmlFor="swagAvailable" className="text-sm font-medium cursor-pointer">
+                      <Label
+                        htmlFor="swagAvailable"
+                        className="text-sm font-medium cursor-pointer"
+                      >
                         Swag Available
                       </Label>
-                      <p className="text-xs text-gray-500">T-shirts, stickers, or other giveaways</p>
+                      <p className="text-xs text-gray-500">
+                        T-shirts, stickers, or other giveaways
+                      </p>
                     </div>
                     <Switch
                       id="swagAvailable"
                       checked={formData.swagAvailable}
-                      onCheckedChange={(checked) => handleInputChange('swagAvailable', checked)}
+                      onCheckedChange={(checked) =>
+                        handleInputChange("swagAvailable", checked)
+                      }
                       disabled={isLoading}
                     />
                   </div>
@@ -681,12 +756,16 @@ export default function AddEventPage() {
                       step="0.01"
                       placeholder="0.00"
                       value={formData.price}
-                      onChange={(e) => handleInputChange('price', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("price", e.target.value)
+                      }
                       className="pl-10 h-11"
                       disabled={isLoading}
                     />
                   </div>
-                  <p className="text-xs text-gray-500">Enter 0 for free events</p>
+                  <p className="text-xs text-gray-500">
+                    Enter 0 for free events
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="maxAttendees" className="text-sm font-medium">
@@ -700,7 +779,9 @@ export default function AddEventPage() {
                       min="1"
                       placeholder="100"
                       value={formData.maxAttendees}
-                      onChange={(e) => handleInputChange('maxAttendees', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("maxAttendees", e.target.value)
+                      }
                       className="pl-10 h-11"
                       disabled={isLoading}
                     />
@@ -720,12 +801,16 @@ export default function AddEventPage() {
                     type="url"
                     placeholder="https://example.com/event-image.jpg"
                     value={formData.imageUrl}
-                    onChange={(e) => handleInputChange('imageUrl', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("imageUrl", e.target.value)
+                    }
                     className="pl-10 h-11"
                     disabled={isLoading}
                   />
                 </div>
-                <p className="text-xs text-gray-500">Optional: Add a banner image for your event</p>
+                <p className="text-xs text-gray-500">
+                  Optional: Add a banner image for your event
+                </p>
               </div>
 
               {/* Tags */}
@@ -736,7 +821,9 @@ export default function AddEventPage() {
                     placeholder="Add a tag..."
                     value={newTag}
                     onChange={(e) => setNewTag(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                    onKeyPress={(e) =>
+                      e.key === "Enter" && (e.preventDefault(), addTag())
+                    }
                     className="flex-1 h-11"
                     disabled={isLoading}
                   />
@@ -762,7 +849,9 @@ export default function AddEventPage() {
                     ))}
                   </div>
                 )}
-                <p className="text-xs text-gray-500">Add relevant keywords to help people find your event</p>
+                <p className="text-xs text-gray-500">
+                  Add relevant keywords to help people find your event
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -788,7 +877,7 @@ export default function AddEventPage() {
                   Creating Event...
                 </>
               ) : (
-                'Create Event'
+                "Create Event"
               )}
             </Button>
           </div>

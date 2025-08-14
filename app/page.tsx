@@ -541,9 +541,13 @@ export default function Home() {
                 </h3>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
               {featuredEvents.map((event) => (
-                <div key={event.id} onClick={() => handleEventSelect(event)}>
+                <div
+                  key={event.id}
+                  className="h-full"
+                  onClick={() => handleEventSelect(event)}
+                >
                   <EventCard event={event} onRSVP={handleRSVP} />
                 </div>
               ))}
@@ -601,11 +605,15 @@ export default function Home() {
                 </h3>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
               {(selectedDiscipline ? filteredEvents : upcomingEvents)
                 .slice(0, 6)
                 .map((event) => (
-                  <div key={event.id} onClick={() => handleEventSelect(event)}>
+                  <div
+                    key={event.id}
+                    className="h-full"
+                    onClick={() => handleEventSelect(event)}
+                  >
                     <EventCard event={event} onRSVP={handleRSVP} />
                   </div>
                 ))}
