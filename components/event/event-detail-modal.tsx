@@ -132,14 +132,13 @@ export function EventDetailModal({
 
               {/* Company - Right beneath title - Clickable */}
               <div
-                className="flex items-center gap-2 text-lg text-gray-700 dark:text-gray-300 mb-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 -mx-3 transition-colors"
+                className="inline-flex items-center gap-2 text-lg text-gray-600 dark:text-gray-300 mb-2 cursor-pointer rounded-lg ml-0 mr-2 my-1 transition-colors w-fit self-start group/company"
                 onClick={handleCompanyClick}
               >
-                <Building2 className="h-5 w-5 text-blue-500" />
-                <span className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                <Building2 className="h-5 w-5 text-blue-500 group-hover/company:text-blue-800 dark:group-hover/company:text-blue-300" />
+                <span className="font-medium text-blue-600 dark:text-blue-400 transition-colors group-hover/company:text-blue-800 dark:group-hover/company:text-blue-300">
                   {event.company}
                 </span>
-                <ExternalLink className="h-4 w-4 text-gray-400 ml-auto" />
               </div>
 
               <DialogDescription className="text-base leading-relaxed">
@@ -196,8 +195,7 @@ export function EventDetailModal({
             </div>
 
             {/* Tags */}
-            <div>
-              <h3 className="font-semibold mb-3">Topics</h3>
+            <div className="mt-2 mb-4">
               <div className="flex flex-wrap gap-2">
                 {event.tags.map((tag) => (
                   <Badge key={tag} variant="outline">

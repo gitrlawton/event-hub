@@ -115,10 +115,10 @@ export function WhosGoing({
         <CardTitle className="text-lg flex items-center gap-2">
           <Users className="h-5 w-5 text-blue-500" />
           Who's Going
-          <Badge variant="secondary" className="ml-auto">
-            {followingAttendees.length} people you follow
-          </Badge>
         </CardTitle>
+        <div className="text-sm font-light text-gray-500 mt-1 flex items-center">
+          {followingAttendees.length} people you follow
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 gap-3">
@@ -142,15 +142,11 @@ export function WhosGoing({
                   <h4 className="font-medium text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
                     {user.name}
                   </h4>
-                  {user.verified && (
-                    <CheckCircle className="h-3 w-3 text-blue-500" />
-                  )}
                 </div>
                 <p className="text-xs text-gray-600 dark:text-gray-300">
                   {user.role} at {user.company}
                 </p>
               </div>
-              <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0" />
             </div>
           ))}
         </div>
