@@ -168,7 +168,7 @@ export default function UserProfilePage() {
       <Header />
 
       {/* Back Button */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <Button
           variant="ghost"
           onClick={navigateBack}
@@ -181,7 +181,7 @@ export default function UserProfilePage() {
 
       {/* Profile Header */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Profile Info */}
             <div className="flex-1">
@@ -494,7 +494,7 @@ export default function UserProfilePage() {
                 Events Created by {user.name}
               </h2>
               {userCreatedEvents.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-6">
                   {userCreatedEvents.map((event) => (
                     <div
                       key={event.id}
@@ -524,7 +524,7 @@ export default function UserProfilePage() {
                 Events Attended by {user.name}
               </h2>
               {userAttendedEvents.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-6">
                   {userAttendedEvents.map((event) => (
                     <div
                       key={event.id}

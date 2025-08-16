@@ -281,9 +281,7 @@ export function EventCard({
             <p className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
               {event.organizer}
             </p>
-            <p className="text-xs text-gray-500">
-              Event Organizer • Click to view profile
-            </p>
+            <p className="text-xs text-gray-500">Event Organizer</p>
           </div>
           <ExternalLink className="h-4 w-4 text-gray-400" />
         </div>

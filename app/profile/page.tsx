@@ -1,30 +1,30 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
-import { Event } from '@/types/event';
-import { User } from '@/types/user';
-import { sampleEvents, getUserCreatedEvents } from '@/lib/events';
-import { getFollowing } from '@/lib/following';
-import { getAllUsers } from '@/lib/users';
-import { Header } from '@/components/layout/header';
-import { EventCard } from '@/components/event/event-card';
-import { EventDetailModal } from '@/components/event/event-detail-modal';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
+import { useState, useMemo } from "react";
+import { Event } from "@/types/event";
+import { User } from "@/types/user";
+import { sampleEvents, getUserCreatedEvents } from "@/lib/events";
+import { getFollowing } from "@/lib/following";
+import { getAllUsers } from "@/lib/users";
+import { Header } from "@/components/layout/header";
+import { EventCard } from "@/components/event/event-card";
+import { EventDetailModal } from "@/components/event/event-detail-modal";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -32,7 +32,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   User as UserIcon,
   Settings,
@@ -71,68 +71,101 @@ import {
   Crown,
   Search,
   Trash2,
-} from 'lucide-react';
-import { useRouter } from 'next/navigation';
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // Mock user data - in a real app, this would come from authentication context
 const mockUser = {
-  id: 'user-1',
-  name: 'John Doe',
-  email: 'john@example.com',
-  avatar: '',
-  bio: 'Passionate software engineer and tech community enthusiast. Love attending conferences and workshops to stay updated with the latest trends.',
-  location: 'San Francisco, CA',
-  website: 'https://johndoe.dev',
-  github: 'johndoe',
-  linkedin: 'johndoe',
-  twitter: '@johndoe',
-  phone: '+1 (555) 123-4567',
-  joinDate: new Date('2023-01-15'),
+  id: "user-1",
+  name: "John Doe",
+  email: "john@example.com",
+  avatar: "",
+  bio: "Passionate software engineer and tech community enthusiast. Love attending conferences and workshops to stay updated with the latest trends.",
+  location: "San Francisco, CA",
+  website: "https://johndoe.dev",
+  github: "johndoe",
+  linkedin: "johndoe",
+  twitter: "@johndoe",
+  phone: "+1 (555) 123-4567",
+  joinDate: new Date("2023-01-15"),
   eventsAttended: 24,
   eventsCreated: 3,
   totalConnections: 156,
-  interests: ['React', 'AI/ML', 'Cloud Computing', 'Startups', 'Product Management'],
+  interests: [
+    "React",
+    "AI/ML",
+    "Cloud Computing",
+    "Startups",
+    "Product Management",
+  ],
 };
 
 // Available companies for selection
 const availableCompanies = [
-  { name: 'Google', description: 'Leading AI and cloud innovation', events: 8 },
-  { name: 'Meta', description: 'Social media and VR pioneer', events: 5 },
-  { name: 'Microsoft', description: 'Enterprise and developer tools', events: 6 },
-  { name: 'Apple', description: 'Consumer technology leader', events: 3 },
-  { name: 'Amazon', description: 'Cloud computing and e-commerce', events: 7 },
-  { name: 'Netflix', description: 'Streaming and entertainment tech', events: 4 },
-  { name: 'Tesla', description: 'Electric vehicles and energy', events: 2 },
-  { name: 'Spotify', description: 'Music streaming technology', events: 3 },
+  { name: "Google", description: "Leading AI and cloud innovation", events: 8 },
+  { name: "Meta", description: "Social media and VR pioneer", events: 5 },
+  {
+    name: "Microsoft",
+    description: "Enterprise and developer tools",
+    events: 6,
+  },
+  { name: "Apple", description: "Consumer technology leader", events: 3 },
+  { name: "Amazon", description: "Cloud computing and e-commerce", events: 7 },
+  {
+    name: "Netflix",
+    description: "Streaming and entertainment tech",
+    events: 4,
+  },
+  { name: "Tesla", description: "Electric vehicles and energy", events: 2 },
+  { name: "Spotify", description: "Music streaming technology", events: 3 },
 ];
 
 export default function ProfilePage() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState('registered');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [activeTab, setActiveTab] = useState("registered");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [attendedEventsModalOpen, setAttendedEventsModalOpen] = useState(false);
   const [createdEventsModalOpen, setCreatedEventsModalOpen] = useState(false);
   const [followingModalOpen, setFollowingModalOpen] = useState(false);
-  
+
   // Highlights state
   const [highlightedCompanies, setHighlightedCompanies] = useState([
-    { name: 'Google', description: 'Leading AI and cloud innovation', events: 8, following: true },
-    { name: 'Meta', description: 'Social media and VR pioneer', events: 5, following: true },
-    { name: 'Microsoft', description: 'Enterprise and developer tools', events: 6, following: false },
+    {
+      name: "Google",
+      description: "Leading AI and cloud innovation",
+      events: 8,
+      following: true,
+    },
+    {
+      name: "Meta",
+      description: "Social media and VR pioneer",
+      events: 5,
+      following: true,
+    },
+    {
+      name: "Microsoft",
+      description: "Enterprise and developer tools",
+      events: 6,
+      following: false,
+    },
   ]);
-  const [highlightedUsers, setHighlightedUsers] = useState(['user-2', 'user-3', 'user-4']);
-  const [highlightedEvents, setHighlightedEvents] = useState(['1', '2', '3']);
-  
+  const [highlightedUsers, setHighlightedUsers] = useState([
+    "user-2",
+    "user-3",
+    "user-4",
+  ]);
+  const [highlightedEvents, setHighlightedEvents] = useState(["1", "2", "3"]);
+
   // Modal states for adding highlights
   const [addCompanyModalOpen, setAddCompanyModalOpen] = useState(false);
   const [addUserModalOpen, setAddUserModalOpen] = useState(false);
   const [addEventModalOpen, setAddEventModalOpen] = useState(false);
-  const [companySearchQuery, setCompanySearchQuery] = useState('');
-  const [userSearchQuery, setUserSearchQuery] = useState('');
-  const [eventSearchQuery, setEventSearchQuery] = useState('');
-  
+  const [companySearchQuery, setCompanySearchQuery] = useState("");
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+  const [eventSearchQuery, setEventSearchQuery] = useState("");
+
   const [editForm, setEditForm] = useState({
     name: mockUser.name,
     bio: mockUser.bio,
@@ -147,7 +180,7 @@ export default function ProfilePage() {
 
   // Filter events based on user's registration status
   const registeredEvents = useMemo(() => {
-    return sampleEvents.filter(event => event.rsvpStatus === 'registered');
+    return sampleEvents.filter((event) => event.rsvpStatus === "registered");
   }, []);
 
   // Get user's created events (including pending ones)
@@ -162,42 +195,53 @@ export default function ProfilePage() {
 
   // Get all users for selection
   const allUsers = useMemo(() => {
-    return getAllUsers().filter(user => user.id !== mockUser.id); // Exclude current user
+    return getAllUsers().filter((user) => user.id !== mockUser.id); // Exclude current user
   }, []);
 
   // Get highlighted user objects
   const highlightedUserObjects = useMemo(() => {
-    return highlightedUsers.map(userId => allUsers.find(user => user.id === userId)).filter(Boolean) as User[];
+    return highlightedUsers
+      .map((userId) => allUsers.find((user) => user.id === userId))
+      .filter(Boolean) as User[];
   }, [highlightedUsers, allUsers]);
 
   // Get highlighted event objects
   const highlightedEventObjects = useMemo(() => {
-    return highlightedEvents.map(eventId => sampleEvents.find(event => event.id === eventId)).filter(Boolean) as Event[];
+    return highlightedEvents
+      .map((eventId) => sampleEvents.find((event) => event.id === eventId))
+      .filter(Boolean) as Event[];
   }, [highlightedEvents]);
 
   // Filtered data for search
   const filteredCompanies = useMemo(() => {
-    return availableCompanies.filter(company => 
-      company.name.toLowerCase().includes(companySearchQuery.toLowerCase()) &&
-      !highlightedCompanies.some(hc => hc.name === company.name)
+    return availableCompanies.filter(
+      (company) =>
+        company.name.toLowerCase().includes(companySearchQuery.toLowerCase()) &&
+        !highlightedCompanies.some((hc) => hc.name === company.name)
     );
   }, [companySearchQuery, highlightedCompanies]);
 
   const filteredUsers = useMemo(() => {
-    return allUsers.filter(user => 
-      (user.name.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-       user.company.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-       user.role.toLowerCase().includes(userSearchQuery.toLowerCase())) &&
-      !highlightedUsers.includes(user.id)
+    return allUsers.filter(
+      (user) =>
+        (user.name.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+          user.company.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+          user.role.toLowerCase().includes(userSearchQuery.toLowerCase())) &&
+        !highlightedUsers.includes(user.id)
     );
   }, [userSearchQuery, highlightedUsers, allUsers]);
 
   const filteredEvents = useMemo(() => {
-    return sampleEvents.filter(event => 
-      (event.title.toLowerCase().includes(eventSearchQuery.toLowerCase()) ||
-       event.company.toLowerCase().includes(eventSearchQuery.toLowerCase()) ||
-       event.description.toLowerCase().includes(eventSearchQuery.toLowerCase())) &&
-      !highlightedEvents.includes(event.id)
+    return sampleEvents.filter(
+      (event) =>
+        (event.title.toLowerCase().includes(eventSearchQuery.toLowerCase()) ||
+          event.company
+            .toLowerCase()
+            .includes(eventSearchQuery.toLowerCase()) ||
+          event.description
+            .toLowerCase()
+            .includes(eventSearchQuery.toLowerCase())) &&
+        !highlightedEvents.includes(event.id)
     );
   }, [eventSearchQuery, highlightedEvents]);
 
@@ -207,12 +251,12 @@ export default function ProfilePage() {
   };
 
   const handleRSVP = (eventId: string) => {
-    console.log('RSVP to event:', eventId);
+    console.log("RSVP to event:", eventId);
   };
 
   const handleSaveProfile = () => {
     // In a real app, this would make an API call to update the profile
-    console.log('Saving profile:', editForm);
+    console.log("Saving profile:", editForm);
     setIsEditing(false);
   };
 
@@ -231,7 +275,7 @@ export default function ProfilePage() {
   };
 
   const navigateToAddEvent = () => {
-    router.push('/add-event');
+    router.push("/add-event");
   };
 
   const navigateToUserProfile = (userName: string) => {
@@ -245,40 +289,45 @@ export default function ProfilePage() {
   };
 
   // Highlight management functions
-  const addCompanyHighlight = (company: typeof availableCompanies[0]) => {
+  const addCompanyHighlight = (company: (typeof availableCompanies)[0]) => {
     if (highlightedCompanies.length < 4) {
-      setHighlightedCompanies(prev => [...prev, { ...company, following: false }]);
+      setHighlightedCompanies((prev) => [
+        ...prev,
+        { ...company, following: false },
+      ]);
       setAddCompanyModalOpen(false);
-      setCompanySearchQuery('');
+      setCompanySearchQuery("");
     }
   };
 
   const removeCompanyHighlight = (companyName: string) => {
-    setHighlightedCompanies(prev => prev.filter(c => c.name !== companyName));
+    setHighlightedCompanies((prev) =>
+      prev.filter((c) => c.name !== companyName)
+    );
   };
 
   const addUserHighlight = (userId: string) => {
     if (highlightedUsers.length < 4) {
-      setHighlightedUsers(prev => [...prev, userId]);
+      setHighlightedUsers((prev) => [...prev, userId]);
       setAddUserModalOpen(false);
-      setUserSearchQuery('');
+      setUserSearchQuery("");
     }
   };
 
   const removeUserHighlight = (userId: string) => {
-    setHighlightedUsers(prev => prev.filter(id => id !== userId));
+    setHighlightedUsers((prev) => prev.filter((id) => id !== userId));
   };
 
   const addEventHighlight = (eventId: string) => {
     if (highlightedEvents.length < 4) {
-      setHighlightedEvents(prev => [...prev, eventId]);
+      setHighlightedEvents((prev) => [...prev, eventId]);
       setAddEventModalOpen(false);
-      setEventSearchQuery('');
+      setEventSearchQuery("");
     }
   };
 
   const removeEventHighlight = (eventId: string) => {
-    setHighlightedEvents(prev => prev.filter(id => id !== eventId));
+    setHighlightedEvents((prev) => prev.filter((id) => id !== eventId));
   };
 
   const renderEventsList = (events: Event[], emptyMessage: string) => {
@@ -294,10 +343,10 @@ export default function ProfilePage() {
       );
     }
 
-    if (viewMode === 'grid') {
+    if (viewMode === "grid") {
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events.map(event => (
+          {events.map((event) => (
             <div key={event.id} onClick={() => handleEventSelect(event)}>
               <EventCard event={event} onRSVP={handleRSVP} />
             </div>
@@ -308,11 +357,15 @@ export default function ProfilePage() {
 
     return (
       <div className="space-y-4">
-        {events.map(event => (
-          <Card key={event.id} className={`p-4 hover:shadow-md transition-shadow cursor-pointer ${event.status === 'pending' ? 'opacity-60' : ''}`} onClick={() => handleEventSelect(event)}>
+        {events.map((event) => (
+          <Card
+            key={event.id}
+            className={`p-4 hover:shadow-md transition-shadow cursor-pointer ${event.status === "pending" ? "opacity-60" : ""}`}
+            onClick={() => handleEventSelect(event)}
+          >
             <div className="flex items-start gap-4">
-              <img 
-                src={event.imageUrl} 
+              <img
+                src={event.imageUrl}
                 alt={event.title}
                 className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
               />
@@ -320,8 +373,10 @@ export default function ProfilePage() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-lg leading-tight">{event.title}</h3>
-                      {event.status === 'pending' && (
+                      <h3 className="font-semibold text-lg leading-tight">
+                        {event.title}
+                      </h3>
+                      {event.status === "pending" && (
                         <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
                           <AlertCircle className="h-3 w-3 mr-1" />
                           Pending
@@ -347,7 +402,7 @@ export default function ProfilePage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {event.rsvpStatus === 'registered' && (
+                    {event.rsvpStatus === "registered" && (
                       <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Registered
@@ -369,8 +424,12 @@ export default function ProfilePage() {
         <Card className="p-12 text-center bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <div className="text-gray-500 dark:text-gray-400">
             <UserPlus className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <h3 className="text-lg font-medium mb-2">Not following anyone yet</h3>
-            <p className="text-sm">Start following other users to see their profiles and events here!</p>
+            <h3 className="text-lg font-medium mb-2">
+              Not following anyone yet
+            </h3>
+            <p className="text-sm">
+              Start following other users to see their profiles and events here!
+            </p>
           </div>
         </Card>
       );
@@ -378,13 +437,20 @@ export default function ProfilePage() {
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {followingUsers.map(user => (
-          <Card key={user.id} className="p-6 hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigateToUserProfile(user.name)}>
+        {followingUsers.map((user) => (
+          <Card
+            key={user.id}
+            className="p-6 hover:shadow-md transition-shadow cursor-pointer"
+            onClick={() => navigateToUserProfile(user.name)}
+          >
             <div className="flex items-start gap-4">
               <Avatar className="h-12 w-12">
                 <AvatarImage src={user.avatar} />
                 <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
-                  {user.name.split(' ').map(n => n[0]).join('')}
+                  {user.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
@@ -425,16 +491,19 @@ export default function ProfilePage() {
     );
   };
 
-// Render placeholder card for adding highlights
-  const renderPlaceholderCard = (type: 'company' | 'user' | 'event', onClick: () => void) => (
-    <Card 
-      className="p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-300 cursor-pointer group bg-gray-50/50 dark:bg-gray-800/50 hover:bg-blue-50/50 dark:hover:bg-blue-900/20"
+  // Render placeholder card for adding highlights
+  const renderPlaceholderCard = (
+    type: "company" | "user" | "event",
+    onClick: () => void
+  ) => (
+    <Card
+      className="p-3 border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-300 cursor-pointer group bg-gray-50/50 dark:bg-gray-800/50 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 h-full"
       onClick={onClick}
     >
-      <div className="flex items-center justify-center h-full min-h-[120px]">
+      <div className="flex items-center justify-center h-full min-h-[60px]">
         <div className="text-center">
-          <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 group-hover:bg-blue-200 dark:group-hover:bg-blue-800 rounded-full flex items-center justify-center mx-auto mb-2 transition-colors">
-            <Plus className="h-6 w-6 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
+          <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 group-hover:bg-blue-200 dark:group-hover:bg-blue-800 rounded-full flex items-center justify-center mx-auto mb-1.5 transition-colors">
+            <Plus className="h-5 w-5 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
             Add {type}
@@ -451,7 +520,7 @@ export default function ProfilePage() {
 
       {/* Profile Header */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Profile Info */}
             <div className="flex-1">
@@ -461,7 +530,10 @@ export default function ProfilePage() {
                   <Avatar className="h-32 w-32">
                     <AvatarImage src={mockUser.avatar} />
                     <AvatarFallback className="text-2xl bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
-                      {mockUser.name.split(' ').map(n => n[0]).join('')}
+                      {mockUser.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
                     </AvatarFallback>
                   </Avatar>
                   {isEditing && (
@@ -483,7 +555,12 @@ export default function ProfilePage() {
                         <Input
                           id="name"
                           value={editForm.name}
-                          onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({
+                              ...prev,
+                              name: e.target.value,
+                            }))
+                          }
                         />
                       </div>
                       <div>
@@ -491,7 +568,12 @@ export default function ProfilePage() {
                         <Textarea
                           id="bio"
                           value={editForm.bio}
-                          onChange={(e) => setEditForm(prev => ({ ...prev, bio: e.target.value }))}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({
+                              ...prev,
+                              bio: e.target.value,
+                            }))
+                          }
                           rows={3}
                         />
                       </div>
@@ -500,7 +582,12 @@ export default function ProfilePage() {
                         <Input
                           id="location"
                           value={editForm.location}
-                          onChange={(e) => setEditForm(prev => ({ ...prev, location: e.target.value }))}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({
+                              ...prev,
+                              location: e.target.value,
+                            }))
+                          }
                         />
                       </div>
                     </div>
@@ -519,7 +606,11 @@ export default function ProfilePage() {
                         </div>
                         <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
-                          Joined {mockUser.joinDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                          Joined{" "}
+                          {mockUser.joinDate.toLocaleDateString("en-US", {
+                            month: "long",
+                            year: "numeric",
+                          })}
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-2">
@@ -530,14 +621,18 @@ export default function ProfilePage() {
                         >
                           {mockUser.eventsAttended} Events Attended
                         </button>
-                        <span className="text-gray-300 dark:text-gray-600">•</span>
+                        <span className="text-gray-300 dark:text-gray-600">
+                          •
+                        </span>
                         <button
                           onClick={() => setCreatedEventsModalOpen(true)}
                           className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors underline text-sm"
                         >
                           {createdEvents.length} Events Created
                         </button>
-                        <span className="text-gray-300 dark:text-gray-600">•</span>
+                        <span className="text-gray-300 dark:text-gray-600">
+                          •
+                        </span>
                         <button
                           onClick={() => setFollowingModalOpen(true)}
                           className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors underline text-sm"
@@ -554,9 +649,7 @@ export default function ProfilePage() {
               <div className="flex gap-3 mt-6">
                 {isEditing ? (
                   <>
-                    <Button onClick={handleSaveProfile}>
-                      Save Changes
-                    </Button>
+                    <Button onClick={handleSaveProfile}>Save Changes</Button>
                     <Button variant="outline" onClick={handleCancelEdit}>
                       Cancel
                     </Button>
@@ -587,7 +680,12 @@ export default function ProfilePage() {
                       <Input
                         id="website"
                         value={editForm.website}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, website: e.target.value }))}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({
+                            ...prev,
+                            website: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                     <div>
@@ -595,7 +693,12 @@ export default function ProfilePage() {
                       <Input
                         id="github"
                         value={editForm.github}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, github: e.target.value }))}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({
+                            ...prev,
+                            github: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                     <div>
@@ -603,7 +706,12 @@ export default function ProfilePage() {
                       <Input
                         id="linkedin"
                         value={editForm.linkedin}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, linkedin: e.target.value }))}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({
+                            ...prev,
+                            linkedin: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                     <div>
@@ -611,7 +719,12 @@ export default function ProfilePage() {
                       <Input
                         id="twitter"
                         value={editForm.twitter}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, twitter: e.target.value }))}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({
+                            ...prev,
+                            twitter: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                   </div>
@@ -619,7 +732,10 @@ export default function ProfilePage() {
                   <div className="space-y-3 text-sm">
                     <div className="flex items-center gap-2">
                       <Globe className="h-4 w-4 text-gray-400" />
-                      <a href={mockUser.website} className="text-blue-600 dark:text-blue-400 hover:underline">
+                      <a
+                        href={mockUser.website}
+                        className="text-blue-600 dark:text-blue-400 hover:underline"
+                      >
                         {mockUser.website}
                       </a>
                     </div>
@@ -645,7 +761,7 @@ export default function ProfilePage() {
 
       {/* Highlights Section */}
       <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2 flex items-center justify-center gap-3">
               <Sparkles className="h-8 w-8 text-yellow-500" />
@@ -663,18 +779,13 @@ export default function ProfilePage() {
                 <Building2 className="h-5 w-5 text-blue-500" />
                 Top Companies
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-3 sm:gap-4 items-stretch">
                 {highlightedCompanies.map((company, index) => (
-                  <Card 
-                    key={company.name} 
-                    className="p-4 hover:shadow-lg transition-all duration-300 cursor-pointer group relative overflow-hidden"
+                  <Card
+                    key={company.name}
+                    className="p-4 hover:shadow-lg transition-all duration-300 cursor-pointer group relative overflow-hidden h-full"
                     onClick={() => navigateToCompany(company.name)}
                   >
-                    {index === 0 && (
-                      <div className="absolute top-2 right-2">
-                        <Crown className="h-4 w-4 text-yellow-500" />
-                      </div>
-                    )}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -712,11 +823,15 @@ export default function ProfilePage() {
                   </Card>
                 ))}
                 {/* Placeholder cards for remaining slots */}
-                {Array.from({ length: 4 - highlightedCompanies.length }).map((_, index) => (
-                  <div key={`company-placeholder-${index}`}>
-                    {renderPlaceholderCard('company', () => setAddCompanyModalOpen(true))}
-                  </div>
-                ))}
+                {Array.from({ length: 4 - highlightedCompanies.length }).map(
+                  (_, index) => (
+                    <div key={`company-placeholder-${index}`}>
+                      {renderPlaceholderCard("company", () =>
+                        setAddCompanyModalOpen(true)
+                      )}
+                    </div>
+                  )
+                )}
               </div>
             </div>
 
@@ -726,11 +841,11 @@ export default function ProfilePage() {
                 <Users className="h-5 w-5 text-green-500" />
                 Top Connections
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-3 sm:gap-4 items-stretch">
                 {highlightedUserObjects.map((user, index) => (
-                  <Card 
-                    key={user.id} 
-                    className="p-4 hover:shadow-lg transition-all duration-300 cursor-pointer group relative"
+                  <Card
+                    key={user.id}
+                    className="p-4 hover:shadow-lg transition-all duration-300 cursor-pointer group relative h-full"
                     onClick={() => navigateToUserProfile(user.name)}
                   >
                     <Button
@@ -749,19 +864,12 @@ export default function ProfilePage() {
                         <Avatar className="h-16 w-16 mx-auto">
                           <AvatarImage src={user.avatar} />
                           <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white text-lg">
-                            {user.name.split(' ').map(n => n[0]).join('')}
+                            {user.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
                           </AvatarFallback>
                         </Avatar>
-                        {index === 0 && (
-                          <div className="absolute -top-1 -right-1 bg-yellow-500 rounded-full p-1">
-                            <Award className="h-3 w-3 text-white" />
-                          </div>
-                        )}
-                        {user.verified && (
-                          <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-1">
-                            <CheckCircle className="h-3 w-3 text-white" />
-                          </div>
-                        )}
                       </div>
                       <h4 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-1">
                         {user.name}
@@ -776,11 +884,15 @@ export default function ProfilePage() {
                   </Card>
                 ))}
                 {/* Placeholder cards for remaining slots */}
-                {Array.from({ length: 4 - highlightedUsers.length }).map((_, index) => (
-                  <div key={`user-placeholder-${index}`}>
-                    {renderPlaceholderCard('user', () => setAddUserModalOpen(true))}
-                  </div>
-                ))}
+                {Array.from({ length: 4 - highlightedUsers.length }).map(
+                  (_, index) => (
+                    <div key={`user-placeholder-${index}`}>
+                      {renderPlaceholderCard("user", () =>
+                        setAddUserModalOpen(true)
+                      )}
+                    </div>
+                  )
+                )}
               </div>
             </div>
 
@@ -790,11 +902,11 @@ export default function ProfilePage() {
                 <Star className="h-5 w-5 text-yellow-500" />
                 Favorite Events
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-3 sm:gap-4 items-stretch">
                 {highlightedEventObjects.map((event, index) => (
-                  <Card 
-                    key={event.id} 
-                    className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group relative"
+                  <Card
+                    key={event.id}
+                    className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group relative h-full"
                     onClick={() => handleEventSelect(event)}
                   >
                     <Button
@@ -808,17 +920,12 @@ export default function ProfilePage() {
                     >
                       <X className="h-3 w-3 text-white" />
                     </Button>
-                    <div className="relative h-32">
-                      <img 
-                        src={event.imageUrl} 
+                    <div className="relative aspect-[16/9]">
+                      <img
+                        src={event.imageUrl}
                         alt={event.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                      {index === 0 && (
-                        <div className="absolute top-2 left-2 bg-yellow-500 rounded-full p-1">
-                          <Trophy className="h-3 w-3 text-white" />
-                        </div>
-                      )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                       <div className="absolute bottom-2 left-2 right-2">
                         <h4 className="font-semibold text-white text-sm line-clamp-2 mb-1">
@@ -833,11 +940,15 @@ export default function ProfilePage() {
                   </Card>
                 ))}
                 {/* Placeholder cards for remaining slots */}
-                {Array.from({ length: 4 - highlightedEvents.length }).map((_, index) => (
-                  <div key={`event-placeholder-${index}`}>
-                    {renderPlaceholderCard('event', () => setAddEventModalOpen(true))}
-                  </div>
-                ))}
+                {Array.from({ length: 4 - highlightedEvents.length }).map(
+                  (_, index) => (
+                    <div key={`event-placeholder-${index}`}>
+                      {renderPlaceholderCard("event", () =>
+                        setAddEventModalOpen(true)
+                      )}
+                    </div>
+                  )
+                )}
               </div>
             </div>
           </div>
@@ -845,11 +956,18 @@ export default function ProfilePage() {
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <main className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <div className="flex items-center justify-between">
-            <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:grid-cols-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-              <TabsTrigger value="registered" className="flex items-center gap-2">
+            <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:grid-cols-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <TabsTrigger
+                value="registered"
+                className="flex items-center gap-2"
+              >
                 <CheckCircle className="h-4 w-4" />
                 Registered ({registeredEvents.length})
               </TabsTrigger>
@@ -857,25 +975,21 @@ export default function ProfilePage() {
                 <Plus className="h-4 w-4" />
                 Created ({createdEvents.length})
               </TabsTrigger>
-              <TabsTrigger value="following" className="flex items-center gap-2">
-                <UserPlus className="h-4 w-4" />
-                Following ({followingUsers.length})
-              </TabsTrigger>
             </TabsList>
 
             <div className="flex items-center gap-2">
               <Button
-                variant={viewMode === 'grid' ? 'default' : 'outline'}
+                variant={viewMode === "grid" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setViewMode('grid')}
+                onClick={() => setViewMode("grid")}
                 className="h-9 w-9 p-0"
               >
                 <Grid3X3 className="h-4 w-4" />
               </Button>
               <Button
-                variant={viewMode === 'list' ? 'default' : 'outline'}
+                variant={viewMode === "list" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setViewMode('list')}
+                onClick={() => setViewMode("list")}
                 className="h-9 w-9 p-0"
               >
                 <List className="h-4 w-4" />
@@ -888,7 +1002,7 @@ export default function ProfilePage() {
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                 Registered Events
               </h2>
-              {renderEventsList(registeredEvents, 'No registered events yet')}
+              {renderEventsList(registeredEvents, "No registered events yet")}
             </div>
           </TabsContent>
 
@@ -902,7 +1016,7 @@ export default function ProfilePage() {
                 Create New Event
               </Button>
             </div>
-            {renderEventsList(createdEvents, 'No events created yet')}
+            {renderEventsList(createdEvents, "No events created yet")}
           </TabsContent>
 
           <TabsContent value="following" className="space-y-6">
@@ -939,8 +1053,8 @@ export default function ProfilePage() {
               />
             </div>
             <div className="overflow-y-auto max-h-[50vh] space-y-2">
-              {filteredCompanies.map(company => (
-                <Card 
+              {filteredCompanies.map((company) => (
+                <Card
                   key={company.name}
                   className="p-3 hover:shadow-md transition-shadow cursor-pointer"
                   onClick={() => addCompanyHighlight(company)}
@@ -950,9 +1064,15 @@ export default function ProfilePage() {
                       {company.name.charAt(0)}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-gray-900 dark:text-gray-100">{company.name}</h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{company.description}</p>
-                      <p className="text-xs text-gray-400">{company.events} events</p>
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                        {company.name}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {company.description}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {company.events} events
+                      </p>
                     </div>
                   </div>
                 </Card>
@@ -990,8 +1110,8 @@ export default function ProfilePage() {
               />
             </div>
             <div className="overflow-y-auto max-h-[50vh] space-y-2">
-              {filteredUsers.map(user => (
-                <Card 
+              {filteredUsers.map((user) => (
+                <Card
                   key={user.id}
                   className="p-3 hover:shadow-md transition-shadow cursor-pointer"
                   onClick={() => addUserHighlight(user.id)}
@@ -1000,18 +1120,27 @@ export default function ProfilePage() {
                     <Avatar className="h-10 w-10">
                       <AvatarImage src={user.avatar} />
                       <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white">
-                        {user.name.split(' ').map(n => n[0]).join('')}
+                        {user.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <h4 className="font-medium text-gray-900 dark:text-gray-100">{user.name}</h4>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                          {user.name}
+                        </h4>
                         {user.verified && (
                           <CheckCircle className="h-4 w-4 text-blue-500" />
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">{user.role} at {user.company}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">{user.bio}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        {user.role} at {user.company}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
+                        {user.bio}
+                      </p>
                     </div>
                   </div>
                 </Card>
@@ -1049,21 +1178,25 @@ export default function ProfilePage() {
               />
             </div>
             <div className="overflow-y-auto max-h-[50vh] space-y-2">
-              {filteredEvents.map(event => (
-                <Card 
+              {filteredEvents.map((event) => (
+                <Card
                   key={event.id}
                   className="p-3 hover:shadow-md transition-shadow cursor-pointer"
                   onClick={() => addEventHighlight(event.id)}
                 >
                   <div className="flex items-start gap-3">
-                    <img 
-                      src={event.imageUrl} 
+                    <img
+                      src={event.imageUrl}
                       alt={event.title}
                       className="w-16 h-12 object-cover rounded-lg flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-gray-900 dark:text-gray-100 line-clamp-1">{event.title}</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">{event.company}</p>
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100 line-clamp-1">
+                        {event.title}
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        {event.company}
+                      </p>
                       <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                         <Calendar className="h-3 w-3" />
                         {event.date.toLocaleDateString()}
@@ -1083,7 +1216,10 @@ export default function ProfilePage() {
       </Dialog>
 
       {/* Events Attended Modal */}
-      <Dialog open={attendedEventsModalOpen} onOpenChange={setAttendedEventsModalOpen}>
+      <Dialog
+        open={attendedEventsModalOpen}
+        onOpenChange={setAttendedEventsModalOpen}
+      >
         <DialogContent className="max-w-2xl max-h-[80vh]">
           <DialogHeader>
             <div className="flex items-center justify-between">
@@ -1105,19 +1241,25 @@ export default function ProfilePage() {
             </DialogDescription>
           </DialogHeader>
           <div className="overflow-y-auto max-h-[60vh] space-y-4">
-            {registeredEvents.map(event => (
-              <Card key={event.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => {
-                handleEventSelect(event);
-                setAttendedEventsModalOpen(false);
-              }}>
+            {registeredEvents.map((event) => (
+              <Card
+                key={event.id}
+                className="p-4 hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => {
+                  handleEventSelect(event);
+                  setAttendedEventsModalOpen(false);
+                }}
+              >
                 <div className="flex items-start gap-4">
-                  <img 
-                    src={event.imageUrl} 
+                  <img
+                    src={event.imageUrl}
                     alt={event.title}
                     className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
                   />
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-lg leading-tight mb-1">{event.title}</h3>
+                    <h3 className="font-semibold text-lg leading-tight mb-1">
+                      {event.title}
+                    </h3>
                     <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 mb-2">
                       {event.description}
                     </p>
@@ -1144,7 +1286,10 @@ export default function ProfilePage() {
       </Dialog>
 
       {/* Events Created Modal */}
-      <Dialog open={createdEventsModalOpen} onOpenChange={setCreatedEventsModalOpen}>
+      <Dialog
+        open={createdEventsModalOpen}
+        onOpenChange={setCreatedEventsModalOpen}
+      >
         <DialogContent className="max-w-2xl max-h-[80vh]">
           <DialogHeader>
             <div className="flex items-center justify-between">
@@ -1175,30 +1320,38 @@ export default function ProfilePage() {
                 <p className="text-gray-500 dark:text-gray-400 mb-4">
                   Start organizing events to build your community!
                 </p>
-                <Button onClick={() => {
-                  setCreatedEventsModalOpen(false);
-                  navigateToAddEvent();
-                }}>
+                <Button
+                  onClick={() => {
+                    setCreatedEventsModalOpen(false);
+                    navigateToAddEvent();
+                  }}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Create Your First Event
                 </Button>
               </div>
             ) : (
-              createdEvents.map(event => (
-                <Card key={event.id} className={`p-4 hover:shadow-md transition-shadow cursor-pointer ${event.status === 'pending' ? 'opacity-60' : ''}`} onClick={() => {
-                  handleEventSelect(event);
-                  setCreatedEventsModalOpen(false);
-                }}>
+              createdEvents.map((event) => (
+                <Card
+                  key={event.id}
+                  className={`p-4 hover:shadow-md transition-shadow cursor-pointer ${event.status === "pending" ? "opacity-60" : ""}`}
+                  onClick={() => {
+                    handleEventSelect(event);
+                    setCreatedEventsModalOpen(false);
+                  }}
+                >
                   <div className="flex items-start gap-4">
-                    <img 
-                      src={event.imageUrl} 
+                    <img
+                      src={event.imageUrl}
                       alt={event.title}
                       className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-lg leading-tight">{event.title}</h3>
-                        {event.status === 'pending' && (
+                        <h3 className="font-semibold text-lg leading-tight">
+                          {event.title}
+                        </h3>
+                        {event.status === "pending" && (
                           <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
                             <AlertCircle className="h-3 w-3 mr-1" />
                             Pending
@@ -1257,20 +1410,28 @@ export default function ProfilePage() {
                   Not following anyone yet
                 </h3>
                 <p className="text-gray-500 dark:text-gray-400">
-                  Start following other users to see their profiles and events here!
+                  Start following other users to see their profiles and events
+                  here!
                 </p>
               </div>
             ) : (
-              followingUsers.map(user => (
-                <Card key={user.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => {
-                  navigateToUserProfile(user.name);
-                  setFollowingModalOpen(false);
-                }}>
+              followingUsers.map((user) => (
+                <Card
+                  key={user.id}
+                  className="p-4 hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => {
+                    navigateToUserProfile(user.name);
+                    setFollowingModalOpen(false);
+                  }}
+                >
                   <div className="flex items-start gap-4">
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={user.avatar} />
                       <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
-                        {user.name.split(' ').map(n => n[0]).join('')}
+                        {user.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
